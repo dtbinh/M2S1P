@@ -1,0 +1,14 @@
+Voila,
+
+Donc je t'envoie ce que j'ai fais.
+Pour le but du jeu je vois les choses comme ça : 
+
+-Au demarrage du jeu il y aura un écran comme au commencement dans star wars ( donc une video ) epliquant l'histoire ( j'ai regardé c'est simple a faire).Donc l'histoire est que un homme et sa femme vivent leurs vies, et là un robot vient enlever la femme.
+-Au lvl 1 : le gars apparait devant sa maison, dans une ville dévastée, et celui-ci doit trouver le portail : donc dans ce lvl on va mettre un radar qui montrera ou est le portail ( donc il va devoir parcourir la carte pour le trouver) j'ai pensé a mettre le portail sur un batiment.( oui on aura un super saut :p)
+-Au lvl 2 : celui-ci apparait dans un batiment, il doit monter tout en haut du batiment. Mais il aura des obstacles: comme par exemple trouver des objet pour débloquer des phrases, ou trouver un extincteur pour libérer le passage du feu. (bien entendu le perso aura une vie)
+
+Pour l'instant je me suis concentré que sur ces deux niveaux vue que cela n'est qu'une ébauche.
+Pour les modèles la prof nous a donné un site où on pourra télécharger les modèles ( extincteur, robot, homme , ...)
+Pour les système je pense qu'on utilisera la manette (obligatoire) et la kinect ( je pense que pour la kinect on prendra le perso en course auto et on fera un lvl spécial kinect du genre le perso qui court et on utilise les mains pour le faire changer de direction et on met un timer : une sorte de labyrinthe ...)
+
+Voila voila, je suis preneur pour toutes autres idées.
