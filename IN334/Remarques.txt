@@ -1,0 +1,14 @@
+Pourquoi ? Quels types d'approches ? Qui va l'utiliser ? Dans quel cadre (edf par exemple) ? Sim-city → multi-agents ? Quels types de modélisation ? Trouver des exemples de modélisation. Pourquoi ce sujet ? Tout relier, conceptualiser. Partir des idées générales vers les détails. Pourquoi le multi-agents ? Vous allez l'utiliser pour quoi ? Quels sont les problèmes qui se posent et quels sont les moyens d'y remédier ? A quoi servent les villes ?
+
+====================================================================
+Pourquoi ? 
+	→ Quels sont les problèmes qui se posent ? 
+		→ Quelles sont les solutions ?
+====================================================================
+
+### REMARQUES : 
+- c'est un rapport, donc pas de présentation ou d'annonce de plan
+- je garde la déf de ABM pour après, faudra la caser juste avant la première référence à un ABM
+- pour les problemes et solutions on peut les laisser là c'est juste une intro sur le global
+- l'explication sur simcity se fera dedans ne tkt pas ;)
+- pour l'instant je laisse la rédaction telle quelle faudra que je revoie ce que j'ai fait j'avais des trucs à changer de toute manière...
