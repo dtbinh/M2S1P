@@ -1,0 +1,39 @@
+# Project: Projet1
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = Castan.o CommandeCamera.o Gauss.o ProgrammePrincipal.o $(RES)
+LINKOBJ  = Castan.o CommandeCamera.o Gauss.o ProgrammePrincipal.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib" -L"C:/Program Files/Matrox Imaging/Mil/LIB" -L"C:/Program Files/OpenCV/lib" -L"C:/Program Files/OpenCV/otherlibs/highgui" -L"C:/Program Files/OpenCV/otherlibs/_graphics" -lhighgui  -lcv -lcxcore -lcvaux -lcvcam -lmil  
+INCS =  -I"C:/Dev-Cpp/include"  -I"C:/Program Files/Matrox Imaging/Mil/Include"  -I"C:/Program Files/Matrox Imaging/Mil/Include/MilDyn"  -I"C:/Program Files/OpenCV/cv/include"  -I"C:/Program Files/OpenCV/cvaux/include"  -I"C:/Program Files/OpenCV/cxcore/include"  -I"C:/Program Files/OpenCV/otherlibs/highgui"  -I"C:/Program Files/OpenCV/otherlibs/ffopencv"  -I"C:/Program Files/OpenCV/otherlibs/_graphics/include" 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"C:/Program Files/OpenCV/cv/include"  -I"C:/Program Files/OpenCV/cvaux/include"  -I"C:/Program Files/OpenCV/cxcore/include"  -I"C:/Program Files/OpenCV/otherlibs/highgui"  -I"C:/Program Files/Matrox Imaging/Mil/Include"  -I"C:/Program Files/Matrox Imaging/Mil/Include/MilDyn" 
+BIN  = Projet1.exe
+CXXFLAGS = $(CXXINCS)  
+CFLAGS = $(INCS)  
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before Projet1.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "Projet1.exe" $(LIBS)
+
+Castan.o: Castan.c
+	$(CPP) -c Castan.c -o Castan.o $(CXXFLAGS)
+
+CommandeCamera.o: CommandeCamera.c
+	$(CPP) -c CommandeCamera.c -o CommandeCamera.o $(CXXFLAGS)
+
+Gauss.o: Gauss.c
+	$(CPP) -c Gauss.c -o Gauss.o $(CXXFLAGS)
+
+ProgrammePrincipal.o: ProgrammePrincipal.c
+	$(CPP) -c ProgrammePrincipal.c -o ProgrammePrincipal.o $(CXXFLAGS)

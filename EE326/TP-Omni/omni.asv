@@ -1,0 +1,9 @@
+% Nom de l’image que l’on va charger
+ NomGenerique = 'ImageParabolique' ;
+% et son suffixe
+Suffixe = '.tif' ;
+% Composition des noms des images a charger et chargement de ces images
+Nom = sprintf('%s%s',NomGenerique,Suffixe) ;
+Image = double(imread(Nom)) ;
+[Nlin, Ncol, Nplan] = size(Image) ;
+figure(1) ; hold off ; image(uint8(Image)) ; hold on ; axis image ;
