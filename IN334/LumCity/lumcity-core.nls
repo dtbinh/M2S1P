@@ -1,0 +1,272 @@
+
+;; LumCity core
+;; V. 1.0.0 - Nov. 2014
+;; Small game based on SimCity, written in NetLogo
+;; from Warlogo by Lois Vanhee, Fabien Hervouet and Jacques Ferber
+;; authors : Silvere Gauthier, Lameira Yannick
+;;
+;; includes the BDI architecture from I. Sakellariou and the Warlogo communications
+
+;; includes some libraries
+__includes["warlogo-communications.nls" "bdi.nls"]
+
+breed [city_halls city_hall]
+breed [police_stations police_station]
+breed [fire_departments fire_department]
+breed [houses house]
+breed [factories factory]
+breed [stores store]
+breed [humans human]
+breed [roads road]
+
+;; Items are declared as objects (e.g. turtles out of the main loop). So they can more easily be
+;; moved and their status are easier to maintain. It could have been handled with patches. 
+breed [fires fire]
+breed [trees tree]
+
+;; A correct hierarchy should have avoided such redundancy
+city_halls-own [ beliefs incoming-queue intentions ]
+police_stations-own [ beliefs incoming-queue intentions ]
+fire_departments-own [ beliefs incoming-queue intentions ]
+houses-own [ beliefs incoming-queue intentions ]
+factories-own [ beliefs incoming-queue intentions ]
+stores-own [ beliefs incoming-queue intentions ]
+humans-own [ beliefs blocked incoming-queue intentions percepts speed ]
+roads-own [ ]
+
+patches-own [ ]
+
+
+globals [ nb-humans ]
+
+
+to setup
+  clear-all
+  
+  ;; globals parameters
+  set nb-humans 10
+  
+  ;; standard initialization
+  set-default-shape city_halls "building institution"
+  set-default-shape police_stations "police"
+  set-default-shape fire_departments "fire department"
+  set-default-shape houses "house"
+  set-default-shape factories "factory"
+  set-default-shape stores "building store"
+  set-default-shape humans "person"
+  set-default-shape roads "tile stone"
+  
+  make-map
+  
+  ;; make humans
+  let i 0
+  while [i < nb-humans]
+  [
+    set i i + 1
+    make-human 28 0 -5
+  ]
+  
+  ;; setting initial heading towards to [0;0] for moving agents
+  ;ask humans [set heading towards patch 0 0]
+  
+  reset-ticks
+end
+
+
+;; MAIN LOOP
+to go
+  if (count humans = 0) [
+    repeat 3 [ beep wait 0.5]
+    print "game over !"
+     stop ]
+  tick
+  
+  ask city_halls [ run city_hall-action ]
+  ask police_stations [ run police_station-action ]
+  ask fire_departments [ run fire_department-action ]
+  ask houses [ run house-action ]
+  ask factories [ run factory-action ]
+  ask stores [ run store-action ]
+  ask humans [ run human-action ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;INTERFACE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to make-map
+  create-city_halls 1 [
+    set color 9
+    set size (min list world-width world-height) / 10
+    set xcor 0
+    set ycor 0
+    init-city_hall
+  ]
+  create-police_stations 1 [
+    set color 93
+    set size (min list world-width world-height) / 20
+    set xcor -20
+    set ycor 0
+    init-police_station
+  ]
+  create-fire_departments 1 [
+    set color 14
+    set size (min list world-width world-height) / 20
+    set xcor 20
+    set ycor 0
+    init-fire_department
+  ]
+end
+
+to make-human [c x y]
+  create-humans 1 [
+    set color c
+    set size (min list world-width world-height) / 30
+    set xcor x
+    set ycor y
+    init-human
+  ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to init-city_hall
+  
+end
+
+to init-police_station
+  
+end
+
+to init-fire_department
+  
+end
+
+to init-human
+  set speed 2
+end
+
+
+to move
+  let last-move-lenght 0
+  while [last-move-lenght < speed] [
+    fd 1
+    set last-move-lenght last-move-lenght + 1
+    if any? other turtles-here with [is-colliding? myself] or hitting-north-wall? self or hitting-south-wall? self or hitting-east-wall? self or hitting-west-wall? self
+    [ set blocked true ]
+  ]
+end
+
+
+to idle
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;COMMUNICATION;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to send-message [receiver performative content]
+  let msg create-message performative content
+  send receiver msg
+end
+
+
+to reply [input-msg performative content]
+  if show-messages [ show (sentence "Reply: " performative content " to: " (get-sender input-msg)) ]
+  let msg create-message performative content
+  send (get-sender input-msg) msg
+end
+
+to broadcast-message [lst performative content]
+  let msg create-message performative content
+  broadcast lst msg
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;TESTING OPERATIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report is-building? [a]
+  report is-city_hall? a or is-police_station? a or is-fire_department? a or is-house? a or is-factory? a or is-store? a
+end
+
+to-report in-front? [a]
+  report member? a ([percepts] of myself) in-cone 2 10
+end
+
+to-report hitting-north-wall? [a]
+  report [pycor] of a = max-pycor
+end
+
+to-report hitting-south-wall? [a]
+  report [pycor] of a = min-pycor
+end
+
+to-report hitting-east-wall? [a]
+  report [pxcor] of a = max-pxcor
+end
+
+to-report hitting-west-wall? [a]
+  report [pxcor] of a = min-pxcor
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;SENSING;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report get-heading
+  report heading
+end
+
+
+to-report blocked?
+  report blocked
+end
+
+
+to-report _perceive
+  report other turtles in-radius 2
+end
+
+to-report perceive
+  report percepts
+end
+
+
+to-report is-colliding? [o]
+  report distance o < (size + [size] of o) / 3
+end
+
+
+to-report headed-towards? [o]
+  report towards o = heading
+end
+
+
+to set-heading [a]
+  if a != nobody [
+  ifelse is-turtle? a
+  [set heading towards a]
+  [set heading a]
+  ]
+end
+
+
+to set-random-heading
+  set heading random 360
+end
+
+
+to-report in-house?
+  report any? houses with [is-colliding? myself]
+end
+
+
+to-report get-closest [l]
+  report min-one-of l [distance myself]
+end
+
