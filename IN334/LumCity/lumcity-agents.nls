@@ -44,7 +44,14 @@ end
 
 to-report human-action
   ;; to be written 
-  set-random-heading
+  let r one-of roads in-cone 2 60
+  ifelse (r != nobody) 
+  [ 
+    face r 
+  ]
+  [
+;    face one-of roads in-radius 10
+  ]
   report "move"
 end
 

@@ -34,7 +34,7 @@ stores-own [ beliefs incoming-queue intentions ]
 humans-own [ beliefs blocked incoming-queue intentions percepts speed ]
 roads-own [ ]
 
-patches-own [ ]
+patches-own [ lock ]
 
 
 globals [ nb-humans ]
@@ -104,11 +104,18 @@ to make-human [c x y]
 end
 
 to make-road [x y]
-  create-roads 1 [
-    set color 7
-    set size 1
-    set xcor x
-    set ycor y
+;  if (not any? turtles-on patch x y)
+;  [
+;    create-roads 1 [
+;      set color 7
+;      set size (min list world-width world-height) / 80
+;      set xcor x
+;      set ycor y
+;    ]
+;  ]
+  ask patch x y 
+  [ 
+    set pcolor 7
   ]
 end
 
