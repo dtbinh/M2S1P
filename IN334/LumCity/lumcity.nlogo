@@ -1,5 +1,5 @@
 ;; includes the lumcity kernel
-__includes["lumcity-core.nls" "lumcity-agents.nls"]
+__includes["lumcity-core.nls"]
 extensions[profiler]
 @#$#@#$#@
 GRAPHICS-WINDOW

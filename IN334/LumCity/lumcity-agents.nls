@@ -44,7 +44,8 @@ end
 
 to-report human-action
   ;; to be written 
-  report "idle"
+  set-random-heading
+  report "move"
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

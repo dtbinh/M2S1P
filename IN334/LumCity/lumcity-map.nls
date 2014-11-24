@@ -1,0 +1,72 @@
+
+to make-map
+  create-city_halls 1 [
+    set color 9
+    set size (min list world-width world-height) / 10
+    set xcor 0
+    set ycor 0
+    init-city_hall
+  ]
+  create-police_stations 1 [
+    set color 93
+    set size (min list world-width world-height) / 20
+    set xcor -8
+    set ycor 3
+    init-police_station
+  ]
+  create-fire_departments 1 [
+    set color 14
+    set size (min list world-width world-height) / 20
+    set xcor 8
+    set ycor 3
+    init-fire_department
+  ]
+  
+  ;; Roads
+  let xmin 1 - world-width / 2
+  let xmax world-width / 2 - 1
+  let ymin 1 - world-height / 2
+  let ymax world-height / 2 - 1
+  
+  let x -5
+  let y -5
+  while [ y <= 5 ]
+  [
+    make-road x y
+    set y y + 1
+  ]
+  set y y - 1
+  set x x + 1
+  while [ x <= 5 ]
+  [
+    make-road x y
+    set x x + 1
+  ]
+  set x x - 1
+  set y y - 1
+  while [ y >= -5 ]
+  [
+    make-road x y
+    set y y - 1
+  ]
+  set y y + 1
+  set x x - 1
+  while [ x > -5 ]
+  [
+    make-road x y
+    set x x - 1
+  ]
+    
+  set x xmin
+  while [ x < -5 ]
+  [
+    make-road x 0
+    set x x + 1
+  ]
+  set x 6
+  while [ x < xmax ]
+  [
+    make-road x 0
+    set x x + 1
+  ]
+end
