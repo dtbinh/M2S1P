@@ -5,8 +5,8 @@ extensions[profiler]
 GRAPHICS-WINDOW
 415
 10
-1235
-524
+1237
+526
 64
 38
 6.3
