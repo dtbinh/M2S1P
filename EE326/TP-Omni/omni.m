@@ -7,13 +7,51 @@ Suffixe = '.tif' ;
 Nom = sprintf('%s%s',NomGenerique,Suffixe) ;
 Image = double(imread(Nom)) ;
 [Nlin, Ncol, Nplan] = size(Image) 
-figure(1) ; hold off ; image(uint8(Image)) ; hold on ; axis image ;
-if(Nplan<3) colormap(gray(256)) ; end ; drawnow ;
-for W = 1 : Ncol
-    for H = 1 : Nlin
-        Image2(H,W) = Image(H, W);
-    end
-end
-figure(2) ; hold off ; image(uint8(Image2)) ; hold on ; axis image ;
-if(Nplan<3) colormap(gray(256)) ; end ; drawnow ;
 
+methode = 2;
+phi = 1.40; ksi = 1.14; u0 = 387.48; v0 = 274.95; ku = 120.59; kv = 120.09;
+
+if (methode == 1)
+    H = 300; W = 360;
+    D = 10;
+    Cylindre = zeros(H, W);
+
+    figure(1) ; hold off ; image(uint8(Image)) ; hold on ; axis image ;
+    if(Nplan<3) colormap(gray(256)) ; end ; drawnow ;
+    for Z = 1 : H
+        for theta = 1 : W
+            rho = Z/D;
+            d = (phi+ksi)/(ksi*sqrt(1+rho^2)-rho);
+            u = round(ku*d*cosd(theta)+u0); v = round(kv*d*sind(theta)+v0);
+            if(u > 0 && u < Ncol && v > 0 && v < Nlin)
+                Cylindre(H+1-Z,W+1-theta) = Image(v,u);
+            end
+        end
+    end
+    figure(2) ; hold off ; image(uint8(Cylindre)) ; hold on ; axis image ;
+    if(Nplan<3) colormap(gray(256)) ; end ; drawnow ;
+end
+
+if (methode == 2)
+    H = 300; W = 360;
+    D = 150;
+    theta = 0;
+    Plan = zeros(H, W);
+
+    figure(1) ; hold off ; image(uint8(Image)) ; hold on ; axis image ;
+    if(Nplan<3) colormap(gray(256)) ; end ; drawnow ;
+    for zplan = 1 : H
+        for xplan = round(-W/2) : round(W/2)
+            xp = xplan/D; zp = zplan/D; h = -1.75;
+            x = (phi+ksi)*(cosd(theta)*xp-sind(theta))/(ksi*sqrt(xp^2+1+(zp+h)^2)-zp-h);
+            y = (phi+ksi)*(sind(theta)*xp-cosd(theta))/(ksi*sqrt(xp^2+1+(zp+h)^2)-zp-h);
+            u = round(ku*x+u0);
+            v = round(kv*y+v0);
+            if(u > 0 && u < Ncol && v > 0 && v < Nlin)
+                Plan(zplan+1,W+1-xplan-round(W/2)) = Image(v,u);
+            end
+        end
+    end
+    figure(2) ; hold off ; image(uint8(Plan)) ; hold on ; axis image ;
+    if(Nplan<3) colormap(gray(256)) ; end ; drawnow ;
+end
