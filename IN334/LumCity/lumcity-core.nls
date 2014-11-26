@@ -17,7 +17,6 @@ breed [houses house]
 breed [factories factory]
 breed [stores store]
 breed [humans human]
-breed [roads road]
 
 ;; Items are declared as objects (e.g. turtles out of the main loop). So they can more easily be
 ;; moved and their status are easier to maintain. It could have been handled with patches. 
@@ -32,9 +31,8 @@ houses-own [ beliefs incoming-queue intentions ]
 factories-own [ beliefs incoming-queue intentions ]
 stores-own [ beliefs incoming-queue intentions ]
 humans-own [ beliefs blocked incoming-queue intentions percepts speed ]
-roads-own [ ]
 
-patches-own [ area density lock road? ]
+patches-own [ area capacity density lock road? ]
 
 
 globals [ nb-humans varsize ]
@@ -55,7 +53,6 @@ to setup
   set-default-shape factories "factory"
   set-default-shape stores "building store"
   set-default-shape humans "person"
-  set-default-shape roads "tile stones"
   
   make-map
   
@@ -90,21 +87,6 @@ to go
   ask stores [ run store-action ]
   ask humans [ run human-action ]
 end
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;INTERFACE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-to make-human [c x y]
-  create-humans 1 [
-    set color c
-    set size (min list world-width world-height) / 30
-    set xcor x
-    set ycor y
-    set speed 1
-  ]
-end
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
