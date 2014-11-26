@@ -44,7 +44,7 @@ end
 
 to-report human-action
   ;; to be written 
-  let r one-of patches in-cone 2 60 with [ road? = true ]
+  let r one-of patches in-cone 2 180 with [ road? = true ]
   if (r = nobody) [ set r one-of patches in-radius 2 with [ road? = true ] ]
   if (r != nobody) [ face r ]
   report "move"

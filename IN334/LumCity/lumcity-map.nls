@@ -11,29 +11,6 @@ to make-map
     set road? false
   ]
   
-  create-city_halls 1 [
-    set color 9
-    set size varsize / 10
-    set xcor 0
-    set ycor 0
-    lock-patches xcor ycor size
-  ]
-  create-police_stations 1 [
-    set color 93
-    set size varsize / 20
-    set xcor -8
-    set ycor -1
-    lock-patches xcor ycor size
-  ]
-  create-fire_departments 1 [
-    set color 14
-    set size varsize / 20
-    set xcor 8
-    set ycor -1
-    lock-patches xcor ycor size
-  ]
-  
-  
   ;; Roads and Areas
 
   make-road-square xmin ymin xmax - xmin ymax - ymin
@@ -108,7 +85,51 @@ to make-map
   make-area-square xmin + 3 * qx - 1 ymin + muy qx - qx' qy' "home" "high"
   make-area-square xmax - qx' ymin + qy qx' qy' "industry" "average"
   make-area-square xmax - qx' ymin + muy qx' qy' "industry" "average"
+  
+  
+  ;; Buildings
+  
+  create-city_halls 1 [
+    set color 9
+    set size varsize / 10
+    set xcor 0
+    set ycor 0
+    lock-patches xcor ycor size
+  ]
+  create-police_stations 1 [
+    set color 93
+    set size varsize / 20
+    set xcor -8
+    set ycor -1
+    lock-patches xcor ycor size
+  ]
+  create-fire_departments 1 [
+    set color 14
+    set size varsize / 20
+    set xcor 8
+    set ycor -1
+    lock-patches xcor ycor size
+  ]
+  
+  make-house varsize / 10 varsize / 10
+  make-house 0 - varsize / 10 varsize / 10
+  make-house 0 - varsize / 10 0 - varsize / 15
+  make-house varsize / 10 0 - varsize / 15
+  
+  make-house qx + varsize / 30 varsize / 20
+  make-house qx + varsize / 30 0 - varsize / 100
+  make-house 0 - qx - varsize / 25 varsize / 20
+  make-house 0 - qx - varsize / 25 0 - varsize / 100
+  
+  make-house xmin + qx - varsize / 25 ymin + qy - varsize / 100
+  make-house xmin + qx - varsize / 25 ymax - qy + varsize / 30
+  make-house xmax - qx + varsize / 25 ymin + qy - varsize / 100
+  make-house xmax - qx + varsize / 25 ymax - qy + varsize / 30
 end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;INTERFACE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 to make-road-square [ x y w h ]
   let xi x
@@ -204,20 +225,35 @@ to make-house [x y]
     if(density = "low") 
     [ 
       set size varsize / 15
+      set capacity 2
       let r random 2
       ifelse (r = 0) [ set shape "house ranch" ] [ set shape "house two story" ]
+      lock-patches x y 2 * size
     ]
     if(density = "average") 
     [ 
-      set size varsize / 20
+      set size varsize / 15
+      set capacity 4
       let r random 2
       ifelse (r = 0) [ set shape "house bungalow" ] [ set shape "house efficiency" ]
+      lock-patches x y 1.5 * size
     ]
     if(density = "high") 
     [ 
-      set size varsize / 10
+      set size varsize / 12
+      set capacity 6
       set shape "house colonial"
+      lock-patches x y size
     ]
-    lock-patches x y size
+  ]
+end
+
+to make-human [c x y]
+  create-humans 1 [
+    set color c
+    set size (min list world-width world-height) / 30
+    set xcor x
+    set ycor y
+    set speed 1
   ]
 end
