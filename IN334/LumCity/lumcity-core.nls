@@ -37,7 +37,7 @@ roads-own [ ]
 patches-own [ area density lock road? ]
 
 
-globals [ nb-humans ]
+globals [ nb-humans varsize ]
 
 
 to setup
@@ -45,6 +45,7 @@ to setup
   
   ;; globals parameters
   set nb-humans 10
+  set varsize (min list world-width world-height)
   
   ;; standard initialization
   set-default-shape city_halls "building institution"
@@ -99,51 +100,13 @@ to make-human [c x y]
     set size (min list world-width world-height) / 30
     set xcor x
     set ycor y
-    init-human
-  ]
-end
-
-to make-road [x y]
-;  if (not any? turtles-on patch x y)
-;  [
-;    create-roads 1 [
-;      set color 7
-;      set size (min list world-width world-height) / 80
-;      set xcor x
-;      set ycor y
-;    ]
-;  ]
-  ask patch x y 
-  [ 
-    set pcolor 5
-  ]
-  ask patch x (y + 1)
-  [
-    set road? true
+    set speed 1
   ]
 end
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-to init-city_hall
-  
-end
-
-to init-police_station
-  
-end
-
-to init-fire_department
-  
-end
-
-to init-human
-  set speed 1
-end
-
 
 to move
   let last-move-lenght 0
