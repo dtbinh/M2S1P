@@ -241,7 +241,7 @@ to make-house [x y]
     if(density = "high") 
     [ 
       set size varsize / 12
-      set capacity 12
+      set capacity 6
       set shape "house colonial"
       lock-patches x y size
     ]

@@ -42,7 +42,7 @@ to setup
   clear-all
   
   ;; globals parameters
-  set nb-humans 10
+  set nb-humans 300
   set varsize (min list world-width world-height)
   
   ;; standard initialization
