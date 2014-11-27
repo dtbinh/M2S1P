@@ -47,6 +47,15 @@ to-report human-action
   let r one-of patches in-cone 2 180 with [ road? = true ]
   if (r = nobody) [ set r one-of patches in-radius 2 with [ road? = true ] ]
   if (r != nobody) [ face r ]
+  if (residence != nobody)
+  [
+    let p one-of patches in-radius 5 with [ lock = false ]
+    if (p != nobody) 
+    [ 
+      move-to p
+      report "install-house"
+    ]
+  ]
   report "move"
 end
 

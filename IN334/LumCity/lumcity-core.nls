@@ -25,25 +25,26 @@ breed [trees tree]
 
 ;; A correct hierarchy should have avoided such redundancy
 city_halls-own [ beliefs incoming-queue intentions ]
-police_stations-own [ beliefs incoming-queue intentions ]
-fire_departments-own [ beliefs incoming-queue intentions ]
-houses-own [ beliefs incoming-queue intentions ]
-factories-own [ beliefs incoming-queue intentions ]
-stores-own [ beliefs incoming-queue intentions ]
-humans-own [ beliefs blocked incoming-queue intentions percepts speed ]
+police_stations-own [ beliefs capacity incoming-queue intentions worker-quantity ]
+fire_departments-own [ beliefs capacity incoming-queue intentions worker-quantity ]
+houses-own [ beliefs capacity incoming-queue intentions ]
+factories-own [ beliefs capacity incoming-queue intentions worker-quantity ]
+stores-own [ beliefs capacity incoming-queue intentions worker-quantity ]
+humans-own [ beliefs blocked incoming-queue intentions money percepts residence speed work ]
 
-patches-own [ area capacity density lock road? ]
+patches-own [ area cost density lock road? ]
 
-
-globals [ nb-humans varsize ]
+globals [ blocksize builds debug nb-humans ]
 
 
 to setup
   clear-all
   
   ;; globals parameters
-  set nb-humans 300
-  set varsize (min list world-width world-height)
+  set nb-humans 36
+  set blocksize round ((world-width - 8) / 13)
+  set debug false
+  set builds []
   
   ;; standard initialization
   set-default-shape city_halls "building institution"
@@ -86,6 +87,16 @@ to go
   ask factories [ run factory-action ]
   ask stores [ run store-action ]
   ask humans [ run human-action ]
+  
+  while [ builds != [] ]
+  [
+    let x first builds
+    set builds but-first builds
+    let y first builds
+    set builds but-first builds
+    
+    make-house x y
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,6 +113,42 @@ end
 
 
 to idle
+end
+
+;; reserved to factories, stores or services
+to recruit [ h ]
+  if(worker-quantity < capacity)
+  [
+    set worker-quantity worker-quantity + 1
+    let w self
+    ask h [ set work w ]
+  ]
+end
+
+;; reserved to humans
+to quit
+  if(work != nobody)
+  [
+    ask work [ set worker-quantity worker-quantity - 1 ]
+    set work nobody
+  ]
+end
+
+;; reserved to humans
+to install-house
+  let h one-of houses-here
+  ifelse(h = nobody)
+  [ 
+    if(not lock and money > cost)
+    [
+      set builds lput xcor builds
+      set builds lput ycor builds
+      set money money - cost
+    ]
+  ]
+  [
+    set residence h
+  ]
 end
 
 
