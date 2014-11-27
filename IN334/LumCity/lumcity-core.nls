@@ -27,14 +27,14 @@ breed [trees tree]
 city_halls-own [ beliefs incoming-queue intentions ]
 police_stations-own [ beliefs capacity incoming-queue intentions worker-quantity ]
 fire_departments-own [ beliefs capacity incoming-queue intentions worker-quantity ]
-houses-own [ beliefs capacity incoming-queue intentions ]
+houses-own [ beliefs capacity incoming-queue intentions people-quantity ]
 factories-own [ beliefs capacity incoming-queue intentions worker-quantity ]
 stores-own [ beliefs capacity incoming-queue intentions worker-quantity ]
 humans-own [ beliefs blocked incoming-queue intentions money percepts residence speed work ]
 
 patches-own [ area cost density lock road? ]
 
-globals [ blocksize builds debug nb-humans ]
+globals [ blocksize builds debug founds nb-humans ]
 
 
 to setup
@@ -42,6 +42,7 @@ to setup
   
   ;; globals parameters
   set nb-humans 36
+  set founds 100
   set blocksize round ((world-width - 8) / 13)
   set debug false
   set builds []
@@ -62,7 +63,18 @@ to setup
   while [i < nb-humans]
   [
     set i i + 1
-    make-human 28 0 -3
+    make-human 28 0 -0.25 * blocksize
+  ]
+  
+  ;; assign residences
+  ask humans with [ residence = nobody ]
+  [ 
+    assign-residence one-of houses with [ people-quantity < capacity ]
+  ]
+  
+  ask factories with [ worker-quantity < capacity ]
+  [
+    recruit one-of humans with [ work = nobody ]
   ]
   
   ;; setting initial heading for moving agents
@@ -74,10 +86,11 @@ end
 
 ;; MAIN LOOP
 to go
-  if (count humans = 0) [
-    repeat 3 [ beep wait 0.5]
+  if (count humans = 0 or founds <= 0) [
     print "game over !"
-     stop ]
+    beep
+    stop 
+  ]
   tick
   
   ask city_halls [ run city_hall-action ]
@@ -96,7 +109,14 @@ to go
     set builds but-first builds
     
     make-house x y
+    ask humans with [ xcor = x and ycor = y ] [ assign-residence one-of houses-here ]
   ]
+  
+  ask humans [ earn-money ]
+  
+  increase-founds
+  decrease-founds
+  plot Founds
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -117,7 +137,7 @@ end
 
 ;; reserved to factories, stores or services
 to recruit [ h ]
-  if(worker-quantity < capacity)
+  if(worker-quantity < capacity and h != nobody)
   [
     set worker-quantity worker-quantity + 1
     let w self
@@ -151,6 +171,22 @@ to install-house
   ]
 end
 
+;; reserved to humans
+to assign-residence [ h ]
+  set residence h
+  if(h != nobody)
+  [
+    ask h [ set people-quantity people-quantity + 1 ]
+  ]
+end
+
+;; reserved to humans
+to earn-money
+  if(work != nobody and member? work factories in-radius blocksize)
+  [
+    set money money + 100
+  ]
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;COMMUNICATION;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -258,3 +294,16 @@ to-report get-closest [l]
   report min-one-of l [distance myself]
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;INTERFACE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to increase-founds
+  ask humans [ 
+    let taxe money * Taxe-per-human / 100
+    set money money - taxe
+    set founds founds + taxe
+  ]
+end
+
+to decrease-founds
+  set founds founds - (count turtles - count humans) * City-entretien / 100
+end

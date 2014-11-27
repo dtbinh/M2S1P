@@ -85,6 +85,54 @@ show-intentions
 1
 -1000
 
+SLIDER
+15
+100
+205
+131
+Taxe-per-human
+Taxe-per-human
+10
+100
+50
+1
+1
+%
+HORIZONTAL
+
+SLIDER
+15
+140
+205
+173
+City-entretien
+City-entretien
+1
+100
+1
+1
+1
+%
+HORIZONTAL
+
+PLOT
+5
+390
+205
+540
+Founds
+tick
+founds
+0.0
+100.0
+0.0
+10000.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" "plot founds"
+
 @#$#@#$#@
 ## DESCRIPTION
 
