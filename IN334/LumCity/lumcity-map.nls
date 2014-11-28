@@ -39,7 +39,7 @@ to make-map
   make-area-square xmax - qx ymax - qy qx qy "home" "low"
   make-area-square xmin ymax - qy qx qy "home" "low"
   
-  let qx' mlx - qx
+  let qx' mlx - qx - 1
   let qy' round (qy / 2)
   make-area-square xmin + qx ymin qx' qy' "industry" "low"
   make-area-square xmin + mrx ymin qx' qy' "industry" "low"
@@ -102,6 +102,7 @@ to make-map
     set xcor -1 * blocksize
     set ycor 0
     set worker-quantity 0
+    set capacity 4
     lock-patches xcor ycor size
   ]
   create-fire_departments 1 [
@@ -110,6 +111,7 @@ to make-map
     set xcor blocksize
     set ycor 0
     set worker-quantity 0
+    set capacity 4
     lock-patches xcor ycor size
   ]
   

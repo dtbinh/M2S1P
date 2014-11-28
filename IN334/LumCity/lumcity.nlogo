@@ -89,12 +89,12 @@ SLIDER
 15
 100
 205
-131
+133
 Taxe-per-human
 Taxe-per-human
 10
 100
-50
+30
 1
 1
 %
@@ -109,7 +109,7 @@ City-entretien
 City-entretien
 1
 100
-1
+75
 1
 1
 %
@@ -385,6 +385,29 @@ Polygon -955883 true false 105 42 111 16 128 2 149 0 178 6 190 18 192 28 220 29 
 Polygon -6459832 true false 54 253 54 238 219 73 227 78
 Polygon -16777216 true false 15 285 15 255 30 225 45 225 75 255 75 270 45 285
 
+person fire
+false
+0
+Circle -7500403 true true 110 5 80
+Polygon -2674135 true false 133 5 118 12 105 41 196 41 183 12 161 5 148 2 136 5
+Polygon -16777216 true false 124 91 150 165 178 91
+Polygon -2674135 true false 134 91 149 106 134 181 149 196 164 181 149 106 164 91
+Polygon -2674135 true false 180 195 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285
+Polygon -2674135 true false 120 90 105 90 60 195 90 210 116 158 120 195 180 195 184 158 210 210 240 195 195 90 180 90 165 105 150 165 135 105 120 90
+Rectangle -7500403 true true 123 76 176 92
+Line -2674135 false 121 90 194 90
+Line -16777216 false 148 143 150 196
+Rectangle -16777216 true false 116 186 182 198
+Rectangle -16777216 true false 109 183 124 227
+Rectangle -16777216 true false 176 183 195 205
+Circle -1 true false 152 143 9
+Circle -1 true false 152 166 9
+Polygon -1184463 true false 172 112 191 112 185 133 179 133
+Polygon -1184463 true false 141 6 160 6 155 21 146 21
+Line -1184463 false 120 30 180 30
+Rectangle -16777216 true false 101 177 122 187
+Rectangle -16777216 true false 179 164 183 186
+
 person police
 false
 0
@@ -484,7 +507,7 @@ Polygon -7500403 true true 150 75 75 210 150 195 225 210
 Polygon -7500403 true true 150 7 90 157 150 142 210 157 150 7
 
 @#$#@#$#@
-NetLogo 5.0.1
+NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

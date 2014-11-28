@@ -43,7 +43,7 @@ to setup
   ;; globals parameters
   set nb-humans 36
   set founds 100
-  set blocksize round ((world-width - 8) / 13)
+  set blocksize round ((world-width - 8) / 13) ;; valeurs conseillées pour les dimensions : 69 et 49 ou multiples entiers
   set debug false
   set builds []
   
@@ -72,9 +72,44 @@ to setup
     assign-residence one-of houses with [ people-quantity < capacity ]
   ]
   
+  ask police_stations with [ worker-quantity < capacity ]
+  [
+    set i worker-quantity
+    while [ i < capacity ]
+    [
+      recruit one-of humans with [ work = nobody ]
+      set i i + 1
+    ]
+  ]
+  
+  ask fire_departments with [ worker-quantity < capacity ]
+  [
+    set i worker-quantity
+    while [ i < capacity ]
+    [
+      recruit one-of humans with [ work = nobody ]
+      set i i + 1
+    ]
+  ]
+  
+  ask stores with [ worker-quantity < capacity ]
+  [
+    set i worker-quantity
+    while [ i < capacity ]
+    [
+      recruit one-of humans with [ work = nobody ]
+      set i i + 1
+    ]
+  ]
+  
   ask factories with [ worker-quantity < capacity ]
   [
-    recruit one-of humans with [ work = nobody ]
+    set i worker-quantity
+    while [ i < capacity ]
+    [
+      recruit one-of humans with [ work = nobody ]
+      set i i + 1
+    ]
   ]
   
   ;; setting initial heading for moving agents
@@ -137,11 +172,16 @@ end
 
 ;; reserved to factories, stores or services
 to recruit [ h ]
+  let s "person"
+  ifelse(member? self police_stations) [ set s "person police" ]
+  [ ifelse(member? self fire_departments) [ set s "person fire" ]
+    [ ifelse(member? self stores) [ set s "person service" ]
+      [ if(member? self factories) [ set s "person construction" ]]]]
   if(worker-quantity < capacity and h != nobody)
   [
     set worker-quantity worker-quantity + 1
     let w self
-    ask h [ set work w ]
+    ask h [ set work w set shape s]
   ]
 end
 
@@ -182,9 +222,9 @@ end
 
 ;; reserved to humans
 to earn-money
-  if(work != nobody and member? work factories in-radius blocksize)
+  if(work != nobody and member? work turtles in-radius blocksize)
   [
-    set money money + 100
+    set money money + 10
   ]
 end
 
