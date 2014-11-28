@@ -103,7 +103,8 @@ to make-map
     set ycor 0
     set worker-quantity 0
     set capacity 4
-    lock-patches xcor ycor size
+    set salary 10
+    lock-patches xcor ycor size + 1
   ]
   create-fire_departments 1 [
     set color 14
@@ -112,7 +113,8 @@ to make-map
     set ycor 0
     set worker-quantity 0
     set capacity 4
-    lock-patches xcor ycor size
+    set salary 10
+    lock-patches xcor ycor size + 1
   ]
   
   make-house blocksize blocksize
@@ -189,7 +191,7 @@ to make-area-square [ x y w h a d ]
 end
 
 to lock-patches [ x y s ]
-  ask patches with [ pxcor >= x - s / 2 and pxcor <= x + s / 2 and pycor >= y - s / 2 and pycor <= y + s / 2 ] [ set lock true if(debug) [set pcolor 0] ]
+  ask patches with [ pxcor >= x - s / 2 and pxcor <= x + s / 2 and pycor >= y - s / 2 and pycor <= y + s / 2 ] [ set lock true ]
 end
 
 to-report patch-color [ a d ]
@@ -238,15 +240,15 @@ to-report patch-cost [ a d ]
   report 1000
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;MAKES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 to make-road [x y]
   ask patch x y 
   [ 
-    set pcolor 5
+    lock-patches x y 2
+    set pcolor 5 
   ]
-  ask patch x (y + 1)
-  [
-    set road? true
-  ]
+  ask patch x (y + 1) [ set road? true ]
 end
 
 to make-house [x y]
@@ -273,7 +275,7 @@ to make-house [x y]
     [ 
       set capacity 6
       set shape "house colonial"
-      lock-patches x y size
+      lock-patches x y size + 1
     ]
   ]
 end
@@ -287,18 +289,21 @@ to make-factory [x y]
     set worker-quantity 0
     if(density = "low") 
     [ 
-      set capacity 5
+      set capacity 3
+      set salary 20
       lock-patches x y 2 * size
     ]
     if(density = "average") 
     [ 
-      set capacity 10
+      set capacity 6
+      set salary 15
       lock-patches x y 1.5 * size
     ]
     if(density = "high") 
     [ 
-      set capacity 15
-      lock-patches x y size
+      set capacity 10
+      set salary 10
+      lock-patches x y size + 1
     ]
   ]
 end
@@ -312,18 +317,21 @@ to make-store [x y]
     set worker-quantity 0
     if(density = "low") 
     [ 
-      set capacity 2
+      set capacity 1
+      set salary 20
       lock-patches x y 2 * size
     ]
     if(density = "average") 
     [ 
-      set capacity 4
+      set capacity 2
+      set salary 15
       lock-patches x y 1.5 * size
     ]
     if(density = "high") 
     [ 
-      set capacity 8
-      lock-patches x y size
+      set capacity 4
+      set salary 10
+      lock-patches x y size + 1
     ]
   ]
 end
@@ -337,6 +345,6 @@ to make-human [c x y]
     set speed 1
     set work nobody
     set residence nobody
-    set money 10 + random 40
+    set money 100 + random 40
   ]
 end

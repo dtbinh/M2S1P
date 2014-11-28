@@ -25,11 +25,11 @@ breed [trees tree]
 
 ;; A correct hierarchy should have avoided such redundancy
 city_halls-own [ beliefs incoming-queue intentions ]
-police_stations-own [ beliefs capacity incoming-queue intentions worker-quantity ]
-fire_departments-own [ beliefs capacity incoming-queue intentions worker-quantity ]
+police_stations-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
+fire_departments-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
 houses-own [ beliefs capacity incoming-queue intentions people-quantity ]
-factories-own [ beliefs capacity incoming-queue intentions worker-quantity ]
-stores-own [ beliefs capacity incoming-queue intentions worker-quantity ]
+factories-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
+stores-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
 humans-own [ beliefs blocked incoming-queue intentions money percepts residence speed work ]
 
 patches-own [ area cost density lock road? ]
@@ -40,11 +40,13 @@ globals [ blocksize builds debug founds nb-humans ]
 to setup
   clear-all
   
+  ;; debug mode
+  set debug true
+  
   ;; globals parameters
-  set nb-humans 36
+  set nb-humans 100
   set founds 100
   set blocksize round ((world-width - 8) / 13) ;; valeurs conseillées pour les dimensions : 69 et 49 ou multiples entiers
-  set debug false
   set builds []
   
   ;; standard initialization
@@ -69,7 +71,7 @@ to setup
   ;; assign residences
   ask humans with [ residence = nobody ]
   [ 
-    assign-residence one-of houses with [ people-quantity < capacity ]
+    own-residence one-of houses with [ people-quantity < capacity ]
   ]
   
   ask police_stations with [ worker-quantity < capacity ]
@@ -77,7 +79,7 @@ to setup
     set i worker-quantity
     while [ i < capacity ]
     [
-      recruit one-of humans with [ work = nobody ]
+      recruit
       set i i + 1
     ]
   ]
@@ -87,7 +89,7 @@ to setup
     set i worker-quantity
     while [ i < capacity ]
     [
-      recruit one-of humans with [ work = nobody ]
+      recruit
       set i i + 1
     ]
   ]
@@ -97,7 +99,7 @@ to setup
     set i worker-quantity
     while [ i < capacity ]
     [
-      recruit one-of humans with [ work = nobody ]
+      recruit
       set i i + 1
     ]
   ]
@@ -107,7 +109,7 @@ to setup
     set i worker-quantity
     while [ i < capacity ]
     [
-      recruit one-of humans with [ work = nobody ]
+      recruit
       set i i + 1
     ]
   ]
@@ -115,6 +117,20 @@ to setup
   ;; setting initial heading for moving agents
   ask humans [set-random-heading]
   
+  if(debug)
+  [
+    let mhc 0 ;max_house_capacity
+    let mwc 0 ;max_worker_capacity
+    ask turtles [ 
+      if(not (member? self humans or member? self city_halls)) 
+      [
+        set label capacity 
+        ifelse (member? self houses) [ set mhc mhc + capacity ] [ set mwc mwc + capacity ]
+      ]
+    ]
+    show (list "max_house_capacity = " mhc ", max_worker_capacity = " mwc)
+    ask patches with [ lock and pcolor != 5 ] [ set pcolor 0 ]
+  ]
   reset-ticks
 end
 
@@ -123,6 +139,7 @@ end
 to go
   if (count humans = 0 or founds <= 0) [
     print "game over !"
+    print (list "humans : " count(humans) ", founds : " (max list round(founds) 0))
     beep
     stop 
   ]
@@ -143,8 +160,11 @@ to go
     let y first builds
     set builds but-first builds
     
-    make-house x y
-    ask humans with [ xcor = x and ycor = y ] [ assign-residence one-of houses-here ]
+    if( not [lock] of patch x y )
+    [
+      make-house x y
+      ask humans with [ xcor = x and ycor = y ] [ own-residence one-of houses-here ]
+    ]
   ]
   
   ask humans [ earn-money ]
@@ -152,6 +172,8 @@ to go
   increase-founds
   decrease-founds
   plot Founds
+  
+  if(debug) [ ask humans [ set label round(money) ] ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -171,18 +193,26 @@ to idle
 end
 
 ;; reserved to factories, stores or services
-to recruit [ h ]
+to recruit
   let s "person"
   ifelse(member? self police_stations) [ set s "person police" ]
   [ ifelse(member? self fire_departments) [ set s "person fire" ]
     [ ifelse(member? self stores) [ set s "person service" ]
       [ if(member? self factories) [ set s "person construction" ]]]]
+  let h one-of humans with [ work = nobody ]
   if(worker-quantity < capacity and h != nobody)
   [
     set worker-quantity worker-quantity + 1
     let w self
     ask h [ set work w set shape s]
   ]
+end
+
+;; reserved to factories, stores or services
+to pay [ h ]
+  let w self
+  let s salary
+  ask h [ set money money + s ]
 end
 
 ;; reserved to humans
@@ -212,7 +242,7 @@ to install-house
 end
 
 ;; reserved to humans
-to assign-residence [ h ]
+to own-residence [ h ]
   set residence h
   if(h != nobody)
   [
@@ -224,7 +254,8 @@ end
 to earn-money
   if(work != nobody and member? work turtles in-radius blocksize)
   [
-    set money money + 10
+    let h self
+    ask work [ pay h ]
   ]
 end
 
@@ -337,7 +368,8 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;INTERFACE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to increase-founds
-  ask humans [ 
+  ask humans
+  [ 
     let taxe money * Taxe-per-human / 100
     set money money - taxe
     set founds founds + taxe
