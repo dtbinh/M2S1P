@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CITY_HALL BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report city_hall-action
-  if( sum [capacity] of factories + sum [capacity] of stores < sum [capacity] of houses)
+  if( sum [capacity - worker-quantity] of factories + sum [capacity - worker-quantity] of stores < count humans with [ work = nobody ])
   [
     let p one-of patches with [ lock = false and (area = "industry" or area = "store") ]
     if(p != nobody and founds > 10 * [cost] of p)

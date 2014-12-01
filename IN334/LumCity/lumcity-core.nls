@@ -41,10 +41,10 @@ to setup
   clear-all
   
   ;; debug mode
-  set debug false
+  set debug true
   
   ;; globals parameters
-  set nb-humans 36
+  set nb-humans 72
   set founds 100
   set blocksize round ((world-width - 8) / 13) ;; valeurs conseillées pour les dimensions : 69 et 49 ou multiples entiers
   set builds []
@@ -242,7 +242,7 @@ end
 ;; reserved to city_hall
 to install-work
   let p one-of patches with [ lock = false and (area = "industry" or area = "shop") ]
-  if(p != nobody)
+  if(p != nobody and ticks mod 50 = 0)
   [
     set builds lput [area] of p builds
     set builds lput [pxcor] of p builds
@@ -279,7 +279,7 @@ end
 
 ;; reserved to humans
 to earn-money
-  if(work != nobody and member? work turtles in-radius blocksize)
+  if(work != nobody and ticks mod 50 = true)
   [
     let h self
     ask work [ pay h ]

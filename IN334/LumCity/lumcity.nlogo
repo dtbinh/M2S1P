@@ -94,7 +94,7 @@ Taxe-per-human
 Taxe-per-human
 10
 100
-10
+30
 1
 1
 %
@@ -109,7 +109,7 @@ City-entretien
 City-entretien
 1
 100
-75
+1
 1
 1
 %
