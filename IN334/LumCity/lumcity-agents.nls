@@ -1,7 +1,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CITY_HALL BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report city_hall-action
-  ;; to be written 
+  if( sum [capacity] of factories + sum [capacity] of stores < sum [capacity] of houses)
+  [
+    let p one-of patches with [ lock = false and (area = "industry" or area = "store") ]
+    if(p != nobody and founds > 10 * [cost] of p)
+    [
+      report "install-work"
+    ]
+  ]
   report "idle"
 end
 
@@ -39,28 +46,42 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; HUMAN BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report human-action
-  ifelse (residence = nobody)
+  if (residence = nobody)
   [
-    ifelse(area = "home" and lock = false and pcolor > 10)
+    let h one-of houses-here with [ people-quantity < capacity ]
+    ifelse(h != nobody)
     [ 
       report "install-house"
     ]
     [
-      let p min-one-of patches in-radius blocksize with [ area = "home" and lock = false and pcolor > 10 ] [distance myself]
-      if (p != nobody and money > cost) 
-      [ 
-        face p
+      set h min-one-of houses in-radius blocksize with [ people-quantity < capacity ] [distance myself]
+      ifelse (h != nobody)
+      [
+        face h
         report "move"
+      ]
+      [
+        ifelse(area = "home" and lock = false and money > cost)
+        [ 
+          report "install-house"
+        ]
+        [
+          let m money
+          let p min-one-of patches in-radius blocksize with [ area = "home" and lock = false and cost < m ] [distance myself]
+          if (p != nobody) 
+          [ 
+            face p
+            report "move"
+          ]
+        ]
       ]
     ]
   ]
-  [
-    let r one-of patches in-cone 2 180 with [ road? ]
-    if (r = nobody) [ set r one-of patches in-radius 2 with [ road? ] ]
-    ifelse (r != nobody) [ face r ] [ face min-one-of patches with [ road? ] [distance myself] ]
-    report "move"
-  ]
-  report "idle"
+  
+  let r one-of patches in-cone 2 180 with [ road? ]
+  if (r = nobody) [ set r one-of patches in-radius 2 with [ road? ] ]
+  ifelse (r != nobody) [ face r ] [ face min-one-of patches with [ road? ] [distance myself] ]
+  report "move"
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

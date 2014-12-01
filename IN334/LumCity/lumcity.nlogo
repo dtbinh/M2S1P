@@ -94,7 +94,7 @@ Taxe-per-human
 Taxe-per-human
 10
 100
-30
+10
 1
 1
 %

@@ -226,17 +226,17 @@ to-report patch-cost [ a d ]
   ]
   if (a = "industry")
   [
-    if (d = "low") [ report 50 ]
-    if (d = "average") [ report 30 ]
-    if (d = "high") [ report 10 ]
+    if (d = "low") [ report 500 ]
+    if (d = "average") [ report 300 ]
+    if (d = "high") [ report 100 ]
   ]
   if (a = "shop")
   [
-    if (d = "low") [ report 50 ]
-    if (d = "average") [ report 30 ]
-    if (d = "high") [ report 10 ]
+    if (d = "low") [ report 500 ]
+    if (d = "average") [ report 300 ]
+    if (d = "high") [ report 100 ]
   ]
-  if (a = "service") [ report 10 ]
+  if (a = "service") [ report 100 ]
   report 1000
 end
 
@@ -245,7 +245,7 @@ end
 to make-road [x y]
   ask patch x y 
   [ 
-    lock-patches x y 2
+    lock-patches x y round(blocksize / 2 + 1)
     set pcolor 5 
   ]
   ask patch x (y + 1) [ set road? true ]
@@ -311,7 +311,7 @@ end
 to make-store [x y]
   create-stores 1 [
     set color 9
-    set size 0.75 * blocksize
+    set size 0.5 * blocksize
     set xcor x
     set ycor y
     set worker-quantity 0
@@ -319,19 +319,19 @@ to make-store [x y]
     [ 
       set capacity 1
       set salary 20
-      lock-patches x y 2 * size
+      lock-patches x y 3 * size
     ]
     if(density = "average") 
     [ 
       set capacity 2
       set salary 15
-      lock-patches x y 1.5 * size
+      lock-patches x y 2.25 * size
     ]
     if(density = "high") 
     [ 
       set capacity 4
       set salary 10
-      lock-patches x y size + 1
+      lock-patches x y 1.5 * size + 1
     ]
   ]
 end
