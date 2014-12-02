@@ -18,7 +18,7 @@ to-report city_hall-action
   if( d != false )
   [
     let p one-of patches with [ lock = false and density = d and (area = "industry" or area = "store") ]
-    if(p != nobody and founds > 10 * [cost] of p)
+    if(p != nobody and funds > 10 * [cost] of p)
     [
       report "install-work"
     ]
@@ -30,13 +30,17 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; POLICE_STATION BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report police_station-action
-  ifelse(worker-quantity < capacity) [ report "recruit" ] [ report "idle" ]
+  if(worker-quantity > capacity) [ report "kick" ]
+  if(worker-quantity < capacity) [ report "recruit" ] 
+  report "idle"
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FIRE_DEPARTMENT BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report fire_department-action
-  ifelse(worker-quantity < capacity) [ report "recruit" ] [ report "idle" ]
+  if(worker-quantity > capacity) [ report "kick" ]
+  if(worker-quantity < capacity) [ report "recruit" ]
+  report "idle"
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; HOUSE BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -61,11 +65,34 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; HUMAN BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report human-action
+  let s self
+  let fireman (work != nobody and member? work fire_departments)
+  
+  let f one-of fires in-radius blocksize
+  if (f != nobody)
+  [
+    ifelse (fireman)
+    [
+      ifelse (is-colliding? f) 
+      [ 
+        report "stop-fire"
+      ]
+      [
+        face f
+        report "move"
+      ]
+    ]
+    [
+      set-random-heading
+      report "move"
+    ]
+  ]
+  
   if (round(money) <= 0) [ report "quit" ]
   
   if (residence = nobody)
   [
-    let h one-of houses-here with [ people-quantity < capacity ]
+    let h one-of houses with [ is-colliding? s and people-quantity < capacity ]
     ifelse(h != nobody)
     [ 
       report "install-house"

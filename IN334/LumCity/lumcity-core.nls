@@ -33,19 +33,17 @@ humans-own [ beliefs blocked incoming-queue intentions money percepts prefered_d
 
 patches-own [ area cost density lock road? ]
 
-globals [ blocksize builds debug founds min_taxe nb-humans ]
+globals [ blocksize builds burns funds min_taxe nb-humans ]
 
 
 to setup
   clear-all
   
-  ;; debug mode
-  set debug true
-  
   ;; globals parameters
   set blocksize round ((world-width - 8) / 13) ;; valeurs conseillées pour les dimensions : 69 et 49 ou multiples entiers
   set builds []
-  set founds 100
+  set burns []
+  set funds 100
   set min_taxe 10
   set nb-humans 36
   
@@ -124,29 +122,31 @@ end
 
 ;; MAIN LOOP
 to go
-  if (count humans = 0 or founds <= 0) [
+  if (count humans = 0 or funds <= 0) [
     ask city_halls [ set label "GAME OVER" ]
-    print (list "humans : " count(humans) ", founds : " (max list round(founds) 0))
+    print (list "humans : " count(humans) ", funds : " (max list round(funds) 0))
     beep
     stop 
   ]
   tick
   
   ask city_halls [ run city_hall-action ]
-  ask police_stations [ run police_station-action ]
-  ask fire_departments [ run fire_department-action ]
+  ask police_stations [ set capacity Services-quantity run police_station-action ]
+  ask fire_departments [ set capacity Services-quantity run fire_department-action ]
   ask houses with [not burning] [ run house-action ]
   ask factories with [not burning] [ run factory-action ]
   ask stores with [not burning] [ run store-action ]
   ask humans [ run human-action ]
   
+  let x 0
+  let y 0
   if( builds != [] )
   [
     let name first builds
     set builds but-first builds
-    let x first builds
+    set x first builds
     set builds but-first builds
-    let y first builds
+    set y first builds
     set builds but-first builds
     
     if( not [lock] of patch x y )
@@ -166,13 +166,28 @@ to go
     ]
   ]
   
+  if( burns != [] )
+  [
+    let t first burns
+    if( t + 500 <= ticks )
+    [
+      set burns but-first burns
+      set x first burns
+      set burns but-first burns
+      set y first burns
+      set burns but-first burns
+      
+      erase x y
+    ]
+  ]
+  
   if(ticks mod 20 = 0)
   [
     ask humans [ earn-money ]
     
-    increase-founds
-    decrease-founds
-    plot Founds
+    increase-funds
+    decrease-funds
+    plot funds
   ]
   
   if(ticks mod 50 = 0)
@@ -182,7 +197,7 @@ to go
   
   if(random 1000 < 5) [ burn one-of turtles with [ member? self houses or member? self factories or member? self stores ] ]
   
-  if(debug) [ 
+  ifelse(debug) [ 
     ask humans [ set label round(money) ] 
     ask patches with [ pcolor != 0 and pcolor != 5 and lock ] [ set pcolor 0 ]
     
@@ -194,9 +209,14 @@ to go
     ]
     show (list "max_house_capacity = " mhc ", max_worker_capacity = " mwc ", worker-capacity" (sum [capacity - worker-quantity] of factories + sum [capacity - worker-quantity] of stores) ", no-work-humans" count humans with [ work = nobody ])
   ]
+  [
+    ask turtles [ set label "" ]
+    ask patches [ set pcolor patch-color area density ]
+    ask patches with [ road? ] [ ask patch pxcor (pycor - 1) [ set pcolor 5 ] ]
+  ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;TURTLES ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to move
   let last-move-lenght 0
@@ -212,7 +232,38 @@ end
 to idle
 end
 
-;; reserved to factories, stores or services
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;OBSERVER ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to erase [ x y ]
+  ask turtles with [ xcor = x and ycor = y ]
+  [
+    let s self
+    if(member? self houses)
+    [
+      ask humans with [ residence = s ] [ set residence nobody ]
+      die
+    ]
+    if(member? self factories or member? self stores)
+    [
+      ask humans with [ work = s ] [ set work nobody set shape "person" ]
+      die
+    ]
+    if(member? self fires) [ die ]
+  ]
+end
+
+to burn [ t ]
+  if(t != nobody)
+  [
+    make-fire [xcor] of t [ycor] of t
+    set burns lput ticks burns
+    set burns lput [xcor] of t burns
+    set burns lput [ycor] of t burns
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;BUILDINGS ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 to recruit
   let s "person"
   ifelse(member? self police_stations) [ set s "person police" ]
@@ -229,21 +280,36 @@ to recruit
   ]
 end
 
-;; reserved to factories, stores or services
+to kick
+  let s self
+  let h one-of humans with [ work = s ]
+  if(h != nobody)
+  [
+    ask h [ set shape "person" set work nobody ]
+    set worker-quantity worker-quantity - 1
+  ]
+end
+
 to pay [ h ]
   let w self
   let s salary + random min_taxe
   ask h [ set money money + s ]
 end
 
-to burn [ t ]
-  if(t != nobody)
+;; reserved to city_hall
+to install-work
+  let p one-of patches with [ lock = false and (area = "industry" or area = "shop") ]
+  if(p != nobody and ticks mod 50 = 0)
   [
-    make-fire [xcor] of t [ycor] of t
+    set builds lput [area] of p builds
+    set builds lput [pxcor] of p builds
+    set builds lput [pycor] of p builds
+    set funds funds - [cost] of p
   ]
 end
 
-;; reserved to humans
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;HUMANS ACTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 to quit
   if(work != nobody)
   [
@@ -256,21 +322,29 @@ to quit
   die
 end
 
-;; reserved to city_hall
-to install-work
-  let p one-of patches with [ lock = false and (area = "industry" or area = "shop") ]
-  if(p != nobody and ticks mod 50 = 0)
+to stop-fire
+  let fireman (member? work fire_departments)
+  if(fireman)
   [
-    set builds lput [area] of p builds
-    set builds lput [pxcor] of p builds
-    set builds lput [pycor] of p builds
-    set founds founds - [cost] of p
+    let s self
+    ask fires with [ is-colliding? s ]
+    [
+      let px position xcor burns
+      let py position ycor burns
+      if(px != false and py != false and py = px + 1)
+      [
+        set burns remove-item py burns
+        set burns remove-item px burns
+        set burns remove-item (px - 1) burns
+      ]
+      die 
+    ]
   ]
 end
 
-;; reserved to humans
 to install-house
-  let h one-of houses-here with [ people-quantity < capacity ]
+  let s self
+  let h one-of houses with [ is-colliding? s and people-quantity < capacity ]
   ifelse(h = nobody)
   [ 
     if(not lock and money > cost)
@@ -294,7 +368,6 @@ to own-residence [ h ]
   ]
 end
 
-;; reserved to humans
 to earn-money
   if(work != nobody)
   [
@@ -411,15 +484,15 @@ end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;INTERFACE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to increase-founds
+to increase-funds
   ask humans
   [ 
     let taxe max (list (money * Taxe-per-human / 100) min_taxe)
     set money money - taxe
-    set founds founds + taxe
+    set funds funds + taxe
   ]
 end
 
-to decrease-founds
-  set founds founds - (count turtles - count humans + count patches with [ road? ] / 2) * City-entretien / 100
+to decrease-funds
+  set funds funds - (count turtles - count humans + count patches with [ road? ] / 2 + 2 * Services-quantity) * City-entretien / 100
 end

@@ -81,7 +81,7 @@ SWITCH
 88
 show-intentions
 show-intentions
-0
+1
 1
 -1000
 
@@ -120,9 +120,9 @@ PLOT
 370
 210
 520
-Founds
+Funds
 tick
-founds
+funds
 0.0
 100.0
 0.0
@@ -131,7 +131,33 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot founds"
+"default" 1.0 0 -16777216 true "" "plot funds"
+
+SWITCH
+10
+330
+113
+363
+debug
+debug
+1
+1
+-1000
+
+SLIDER
+15
+180
+205
+213
+Services-quantity
+Services-quantity
+4
+40
+4
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## DESCRIPTION
@@ -507,7 +533,7 @@ Polygon -7500403 true true 150 75 75 210 150 195 225 210
 Polygon -7500403 true true 150 7 90 157 150 142 210 157 150 7
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
