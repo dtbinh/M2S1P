@@ -21,33 +21,33 @@ breed [humans human]
 ;; Items are declared as objects (e.g. turtles out of the main loop). So they can more easily be
 ;; moved and their status are easier to maintain. It could have been handled with patches. 
 breed [fires fire]
-breed [trees tree]
 
 ;; A correct hierarchy should have avoided such redundancy
 city_halls-own [ beliefs incoming-queue intentions ]
 police_stations-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
 fire_departments-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
-houses-own [ beliefs capacity incoming-queue intentions people-quantity ]
-factories-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
-stores-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
-humans-own [ beliefs blocked incoming-queue intentions money percepts residence speed work ]
+houses-own [ beliefs burning capacity incoming-queue intentions people-quantity ]
+factories-own [ beliefs burning capacity incoming-queue intentions salary worker-quantity ]
+stores-own [ beliefs burning capacity incoming-queue intentions salary worker-quantity ]
+humans-own [ beliefs blocked incoming-queue intentions money percepts prefered_density residence speed work ]
 
 patches-own [ area cost density lock road? ]
 
-globals [ blocksize builds debug founds nb-humans ]
+globals [ blocksize builds debug founds min_taxe nb-humans ]
 
 
 to setup
   clear-all
   
   ;; debug mode
-  set debug true
+  set debug false
   
   ;; globals parameters
-  set nb-humans 72
-  set founds 100
   set blocksize round ((world-width - 8) / 13) ;; valeurs conseillées pour les dimensions : 69 et 49 ou multiples entiers
   set builds []
+  set founds 100
+  set min_taxe 10
+  set nb-humans 36
   
   ;; standard initialization
   set-default-shape city_halls "building institution"
@@ -57,6 +57,7 @@ to setup
   set-default-shape factories "factory"
   set-default-shape stores "building store"
   set-default-shape humans "person"
+  set-default-shape fires "fire"
   
   make-map
   
@@ -117,20 +118,6 @@ to setup
   ;; setting initial heading for moving agents
   ask humans [set-random-heading]
   
-  if(debug)
-  [
-    let mhc 0 ;max_house_capacity
-    let mwc 0 ;max_worker_capacity
-    ask turtles [ 
-      if(not (member? self humans or member? self city_halls)) 
-      [
-        set label capacity 
-        ifelse (member? self houses) [ set mhc mhc + capacity ] [ set mwc mwc + capacity ]
-      ]
-    ]
-    show (list "max_house_capacity = " mhc ", max_worker_capacity = " mwc)
-    ask patches with [ lock and pcolor != 5 ] [ set pcolor 0 ]
-  ]
   reset-ticks
 end
 
@@ -138,7 +125,7 @@ end
 ;; MAIN LOOP
 to go
   if (count humans = 0 or founds <= 0) [
-    print "game over !"
+    ask city_halls [ set label "GAME OVER" ]
     print (list "humans : " count(humans) ", founds : " (max list round(founds) 0))
     beep
     stop 
@@ -148,9 +135,9 @@ to go
   ask city_halls [ run city_hall-action ]
   ask police_stations [ run police_station-action ]
   ask fire_departments [ run fire_department-action ]
-  ask houses [ run house-action ]
-  ask factories [ run factory-action ]
-  ask stores [ run store-action ]
+  ask houses with [not burning] [ run house-action ]
+  ask factories with [not burning] [ run factory-action ]
+  ask stores with [not burning] [ run store-action ]
   ask humans [ run human-action ]
   
   if( builds != [] )
@@ -179,15 +166,33 @@ to go
     ]
   ]
   
-  ask humans [ earn-money ]
+  if(ticks mod 20 = 0)
+  [
+    ask humans [ earn-money ]
+    
+    increase-founds
+    decrease-founds
+    plot Founds
+  ]
   
-  increase-founds
-  decrease-founds
-  plot Founds
+  if(ticks mod 50 = 0)
+  [ 
+    make-human 28 0 -0.25 * blocksize
+  ]
+  
+  if(random 1000 < 5) [ burn one-of turtles with [ member? self houses or member? self factories or member? self stores ] ]
   
   if(debug) [ 
     ask humans [ set label round(money) ] 
     ask patches with [ pcolor != 0 and pcolor != 5 and lock ] [ set pcolor 0 ]
+    
+    let mhc 0 ;max_house_capacity
+    let mwc 0 ;max_worker_capacity
+    ask turtles with [ not (member? self humans or member? self city_halls) ]
+    [
+      ifelse(member? self houses) [ set label (list people-quantity " : " capacity) set mhc mhc + capacity ] [ set label (list worker-quantity " : " capacity) set mwc mwc + capacity ]
+    ]
+    show (list "max_house_capacity = " mhc ", max_worker_capacity = " mwc ", worker-capacity" (sum [capacity - worker-quantity] of factories + sum [capacity - worker-quantity] of stores) ", no-work-humans" count humans with [ work = nobody ])
   ]
 end
 
@@ -214,7 +219,8 @@ to recruit
   [ ifelse(member? self fire_departments) [ set s "person fire" ]
     [ ifelse(member? self stores) [ set s "person service" ]
       [ if(member? self factories) [ set s "person construction" ]]]]
-  let h one-of humans with [ work = nobody ]
+  let d density
+  let h one-of humans with [ work = nobody and (prefered_density = d or density = false) ]
   if(worker-quantity < capacity and h != nobody)
   [
     set worker-quantity worker-quantity + 1
@@ -226,8 +232,15 @@ end
 ;; reserved to factories, stores or services
 to pay [ h ]
   let w self
-  let s salary
+  let s salary + random min_taxe
   ask h [ set money money + s ]
+end
+
+to burn [ t ]
+  if(t != nobody)
+  [
+    make-fire [xcor] of t [ycor] of t
+  ]
 end
 
 ;; reserved to humans
@@ -235,8 +248,12 @@ to quit
   if(work != nobody)
   [
     ask work [ set worker-quantity worker-quantity - 1 ]
-    set work nobody
   ]
+  if(residence != nobody)
+  [
+    ask residence [ set people-quantity people-quantity - 1 ]
+  ]
+  die
 end
 
 ;; reserved to city_hall
@@ -279,7 +296,7 @@ end
 
 ;; reserved to humans
 to earn-money
-  if(work != nobody and ticks mod 50 = true)
+  if(work != nobody)
   [
     let h self
     ask work [ pay h ]
@@ -397,12 +414,12 @@ end
 to increase-founds
   ask humans
   [ 
-    let taxe money * Taxe-per-human / 100
+    let taxe max (list (money * Taxe-per-human / 100) min_taxe)
     set money money - taxe
     set founds founds + taxe
   ]
 end
 
 to decrease-founds
-  set founds founds - (count turtles - count humans) * City-entretien / 100
+  set founds founds - (count turtles - count humans + count patches with [ road? ] / 2) * City-entretien / 100
 end

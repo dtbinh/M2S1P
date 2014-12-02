@@ -72,7 +72,7 @@ to make-map
   make-area-square xmin + qx ymin + mdy qx' qy' "shop" "high"
   make-area-square xmin + mrx ymin + mdy qx' qy' "shop" "high"
   
-  make-area-square -1.5 * blocksize + 1 ymin + mdy 3 * blocksize - 2 qy' "service" ""
+  make-area-square -1.5 * blocksize + 1 ymin + mdy 3 * blocksize - 2 qy' "service" false
   
   set qx' round(qx / 3)
   set qy' mdy - qy - 1
@@ -257,6 +257,7 @@ to make-house [x y]
     set size 0.75 * blocksize
     set xcor x
     set ycor y
+    set burning false
     if(density = "low") 
     [ 
       set capacity 2
@@ -286,6 +287,7 @@ to make-factory [x y]
     set size 0.75 * blocksize
     set xcor x
     set ycor y
+    set burning false
     set worker-quantity 0
     if(density = "low") 
     [ 
@@ -314,6 +316,7 @@ to make-store [x y]
     set size 0.5 * blocksize
     set xcor x
     set ycor y
+    set burning false
     set worker-quantity 0
     if(density = "low") 
     [ 
@@ -346,5 +349,30 @@ to make-human [c x y]
     set work nobody
     set residence nobody
     set money 100 + random 40
+    
+    let r random 100
+    ifelse (r < 20)
+    [
+      set prefered_density "low"
+    ]
+    [
+      ifelse (r > 70)
+      [
+        set prefered_density "average"
+      ]
+      [
+        set prefered_density "high"
+      ]
+    ]
+  ]
+end
+
+to make-fire [x y]
+  create-fires 1 [
+    set color 14
+    set size 0.5 * blocksize
+    set xcor x
+    set ycor y
+    ask turtles in-radius size with [ member? self houses or member? self factories or member? self stores ] [ set burning true ]
   ]
 end

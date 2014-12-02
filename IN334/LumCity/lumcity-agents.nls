@@ -1,14 +1,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CITY_HALL BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report city_hall-action
-  if( sum [capacity - worker-quantity] of factories + sum [capacity - worker-quantity] of stores < count humans with [ work = nobody ])
+  let wl sum [capacity - worker-quantity] of factories with [ density = "low" ] + sum [capacity - worker-quantity] of stores with [ density = "low" ]
+  let wa sum [capacity - worker-quantity] of factories with [ density = "average" ] + sum [capacity - worker-quantity] of stores with [ density = "average" ]
+  let wh sum [capacity - worker-quantity] of factories with [ density = "high" ] + sum [capacity - worker-quantity] of stores with [ density = "high" ]
+  
+  let hl count humans with [ work = nobody and prefered_density = "low" ]
+  let ha count humans with [ work = nobody and prefered_density = "average" ]
+  let hh count humans with [ work = nobody and prefered_density = "high" ]
+  
+  let mw max (list wl wa wh)
+  let d false
+  if( wl = mw and wl < hl ) [ set d "low" ]
+  if( wa = mw and wa < ha ) [ set d "average" ]
+  if( wh = mw and wh < hh ) [ set d "high" ]
+  
+  if( d != false )
   [
-    let p one-of patches with [ lock = false and (area = "industry" or area = "store") ]
+    let p one-of patches with [ lock = false and density = d and (area = "industry" or area = "store") ]
     if(p != nobody and founds > 10 * [cost] of p)
     [
       report "install-work"
     ]
   ]
+  
   report "idle"
 end
 
@@ -46,6 +61,8 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; HUMAN BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report human-action
+  if (round(money) <= 0) [ report "quit" ]
+  
   if (residence = nobody)
   [
     let h one-of houses-here with [ people-quantity < capacity ]
@@ -61,13 +78,14 @@ to-report human-action
         report "move"
       ]
       [
-        ifelse(area = "home" and lock = false and money > cost)
+        ifelse(area = "home" and density = prefered_density and lock = false and money > cost)
         [ 
           report "install-house"
         ]
         [
           let m money
-          let p min-one-of patches in-radius blocksize with [ area = "home" and lock = false and cost < m ] [distance myself]
+          let d prefered_density
+          let p min-one-of patches in-radius blocksize with [ area = "home" and density = d and lock = false and cost < m ] [distance myself]
           if (p != nobody) 
           [ 
             face p
