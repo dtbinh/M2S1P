@@ -40,7 +40,7 @@ to setup
   clear-all
   
   ;; debug mode
-  set debug false
+  set debug true
   
   ;; globals parameters
   set blocksize round ((world-width - 8) / 13) ;; valeurs conseillées pour les dimensions : 69 et 49 ou multiples entiers
@@ -188,7 +188,7 @@ to go
     
     let mhc 0 ;max_house_capacity
     let mwc 0 ;max_worker_capacity
-    ask turtles with [ not (member? self humans or member? self city_halls) ]
+    ask turtles with [ not (member? self humans or member? self city_halls or member? self fires) ]
     [
       ifelse(member? self houses) [ set label (list people-quantity " : " capacity) set mhc mhc + capacity ] [ set label (list worker-quantity " : " capacity) set mwc mwc + capacity ]
     ]
