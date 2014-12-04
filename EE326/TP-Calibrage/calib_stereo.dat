@@ -1,0 +1,21 @@
+Calibration paire stereovision et reconstruction 3D:
+Fichier de mesures :		uv_xyz_d.dat
+Nombre de points:		12
+
+Modele camera droite:
+2.090330e+003	-2.352306e+003	3.075420e+002	3.091548e+002	
+-8.600893e+002	-2.929423e+002	-2.815955e+003	4.594894e+002	
+5.118804e-001	1.497352e+000	7.646689e-001	1.000000e+000	
+Fichier de reconstruction :		uv_xyz_d.dat
+Nombre de points:		12
+
+Reconstruction caméra droite en pixels:
+Max_u	Max_v
+8.491214e-001	-8.022044e-001
+Min_u	Min_v
+-1.892042e+000	-1.810232e+000
+Moy_u	Moy_v
+-5.214604e-001	-1.306218e+000
+Ect_u	Ect_v
+1.938295e+000	7.127830e-001
+

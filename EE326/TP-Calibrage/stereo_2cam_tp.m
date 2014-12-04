@@ -7,59 +7,66 @@
 %
 clear;clc;close all;
 
-    % donnees 3D de la mire de calibration et visualisation camera gauche
-    fichier=['uv_xyz_g'];
-    
-    fich=[fichier '.dat'];
-    eval(['load ' fich]);
-    m=eval(fichier);
-	n=max(size(m));
-    
-    
-	fp=fopen('calib_stereo.dat','w');
-   	fprintf(fp,'Calibration paire stereovision et reconstruction 3D:\n');
+% donnees 3D de la mire de calibration et visualisation camera gauche
+fichier=['uv_xyz_g'];
 
-	fprintf(fp,'Fichier de mesures :\t\t%s\n',fich);
-	fprintf(fp,'Nombre de points:\t\t%d\n\n',n);
-
-    % Affectation des donnees du fichier a un choix de varaiables
-
-    xo=m(:,3);yo=m(:,4);zo=m(:,5);u=m(:,1);v=m(:,2);
-    
-    % construction des differentes matrices
-    
-    % A_=[xo,yo,zo,.....
-	% B=[u;v];
-    
-	% La fameuse pseudo inverse
-    C=pinv(A)*B;
-    
-    % le modele global
-	Glob=[C(1:4)';
-				C(5:8)';
-				C(9:11)',1];
-
-	% formatage du modele de la camera et stockage des donnees
-    fprintf(fp,'Modele camera gauche:\n');
-	 for i=1:3
-		for j=1:4
-	 fprintf(fp,'%e\t',Glob1(i,j));
-		end;
-	 fprintf(fp,'\n');
-	 end;
+fich=[fichier '.dat'];
+eval(['load ' fich]);
+m=eval(fichier);
+n=max(size(m));
 
 
-	fprintf(fp,'Fichier de reconstruction :\t\t%s\n',fich);
-	fprintf(fp,'Nombre de points:\t\t%d\n\n',n);
+fp=fopen('calib_stereo_g.dat','w');
+fprintf(fp,'Calibration paire stereovision et reconstruction 3D:\n');
 
-    % Donnees pixel reconstruites
-	B_cam_rec=Glob*[xo';yo';zo';ones(1,n)];
-	u_rec=B_cam_rec(1,:)./B_cam_rec(3,:);
-	v_rec=B_cam_rec(2,:)./B_cam_rec(3,:);
-    
-    % Erreur de reconstruction
-    
-	Err_cam=[u'-u_rec;v'-v_rec];
+fprintf(fp,'Fichier de mesures :\t\t%s\n',fich);
+fprintf(fp,'Nombre de points:\t\t%d\n\n',n);
+
+% Affectation des donnees du fichier a un choix de varaiables
+
+xo=m(:,3);yo=m(:,4);zo=m(:,5);ug=m(:,1);vg=m(:,2);
+
+% construction des differentes matrices
+
+% A_=[xo,yo,zo,.....
+% B=[u;v];
+for i=1:n
+    if mod(i, 2) == 0
+        A(i,:) = [xo(i),yo(i),zo(i),1, 0,0,0,0, -ug(i)*xo(i), -ug(i)*yo(i), -ug(i)*zo(i)];
+        B(i,:) = [ug(i)];
+    else
+        A(i,:) = [0,0,0,0, xo(i),yo(i),zo(i),1, -vg(i)*xo(i), -vg(i)*yo(i), -vg(i)*zo(i)];
+        B(i,:) = [vg(i)];
+    end
+end
+
+% La fameuse pseudo inverse
+C=pinv(A)*B;
+
+% le modele global
+Glob1=[C(1:4)'; C(5:8)'; C(9:11)',1];
+
+% formatage du modele de la camera et stockage des donnees
+fprintf(fp,'Modele camera gauche:\n');
+for i=1:3
+    for j=1:4
+        fprintf(fp,'%e\t',Glob1(i,j));
+    end;
+    fprintf(fp,'\n');
+end;
+
+
+fprintf(fp,'Fichier de reconstruction :\t\t%s\n',fich);
+fprintf(fp,'Nombre de points:\t\t%d\n\n',n);
+
+% Donnees pixel reconstruites
+B_cam_rec=Glob1*[xo';yo';zo';ones(1,n)]; %UVS
+u_rec=B_cam_rec(1,:)./B_cam_rec(3,:); %U/S
+v_rec=B_cam_rec(2,:)./B_cam_rec(3,:); %V/S
+
+% Erreur de reconstruction
+
+Err_cam=[ug'-u_rec;vg'-v_rec];
 
 % Max Min Moyenne Ecart type
 
@@ -82,16 +89,123 @@ fprintf(fp,'\n');
 fclose(fp);
 
 % Rependre la meme demarche pour les donnees 3D de la mire de calibration et visualisation camera droite
+% donnees 3D de la mire de calibration et visualisation camera droite
+fichier=['uv_xyz_d'];
+fich=[fichier '.dat'];
+eval(['load ' fich]);
+m=eval(fichier);
+n=max(size(m));
+fp=fopen('calib_stereo_d.dat','w');
+fprintf(fp,'Calibration paire stereovision et reconstruction 3D:\n');
+fprintf(fp,'Fichier de mesures :\t\t%s\n',fich);
+fprintf(fp,'Nombre de points:\t\t%d\n\n',n);
+xo=m(:,3);yo=m(:,4);zo=m(:,5);ud=m(:,1);vd=m(:,2);
+for i=1:n
+    if mod(i, 2) == 0
+        A(i,:) = [xo(i),yo(i),zo(i),1, 0,0,0,0, -ud(i)*xo(i), -ud(i)*yo(i), -ud(i)*zo(i)];
+        B(i,:) = [ud(i)];
+    else
+        A(i,:) = [0,0,0,0, xo(i),yo(i),zo(i),1, -vd(i)*xo(i), -vd(i)*yo(i), -vd(i)*zo(i)];
+        B(i,:) = [vd(i)];
+    end
+end
+C=pinv(A)*B;
+Glob2=[C(1:4)'; C(5:8)'; C(9:11)',1];
+fprintf(fp,'Modele camera droite:\n');
+for i=1:3
+    for j=1:4
+        fprintf(fp,'%e\t',Glob2(i,j));
+    end;
+    fprintf(fp,'\n');
+end;
+fprintf(fp,'Fichier de reconstruction :\t\t%s\n',fich);
+fprintf(fp,'Nombre de points:\t\t%d\n\n',n);
+B_cam_rec=Glob2*[xo';yo';zo';ones(1,n)];
+u_rec=B_cam_rec(1,:)./B_cam_rec(3,:);
+v_rec=B_cam_rec(2,:)./B_cam_rec(3,:);
+Err_cam=[ud'-u_rec;vd'-v_rec];
+Max_Err_cam=max(Err_cam(:,1:(n)))';
+Min_Err_cam=min(Err_cam(:,1:(n)))';
+Moy_Err_cam=mean(Err_cam(:,1:(n)))';
+Std_Err_cam=std(Err_cam(:,1:(n)))';
+fprintf(fp,'Reconstruction caméra droite en pixels:\n');
+fprintf(fp,'Max_u\tMax_v\n');
+fprintf(fp,'%e\t%e\n',Max_Err_cam(1),Max_Err_cam(2));
+fprintf(fp,'Min_u\tMin_v\n');
+fprintf(fp,'%e\t%e\n',Min_Err_cam(1),Min_Err_cam(2));
+fprintf(fp,'Moy_u\tMoy_v\n');
+fprintf(fp,'%e\t%e\n',Moy_Err_cam(1),Moy_Err_cam(2));
+fprintf(fp,'Ect_u\tEct_v\n');
+fprintf(fp,'%e\t%e\n',Std_Err_cam(1),Std_Err_cam(2));
+fprintf(fp,'\n');
+fclose(fp);
 
 
 % Reconstruction 3D a partir des modeles precedents et des equations
 % fournies dans le support de TP
 
-     
-        
- % Rayons visuels des deux cameras
 
 
-% Points 3D reconstruits
+% Rayons visuels des deux cameras
+Ai = ones(n,4,3);
+Bi = ones(n,4,1);
+Xi = ones(n,3,1);
+A = ones(4,3);
+B = ones(4,1);
+X = ones(3,1);
+for i=1:n
+    A = [ Glob1(1,1)-Glob1(3,1)*ug(i), Glob1(1,2)-Glob1(3,2)*ug(i), Glob1(1,3)-Glob1(3,3)*ug(i);
+        Glob1(2,1)-Glob1(3,1)*vg(i), Glob1(2,2)-Glob1(3,2)*vg(i), Glob1(2,3)-Glob1(3,3)*vg(i);
+        Glob2(1,1)-Glob2(3,1)*ud(i), Glob2(1,2)-Glob2(3,2)*ud(i), Glob2(1,3)-Glob2(3,3)*ud(i);
+        Glob2(2,1)-Glob2(3,1)*vd(i), Glob2(2,2)-Glob2(3,2)*vd(i), Glob2(2,3)-Glob2(3,3)*vd(i); ];
+    B = [ Glob1(1,4)-ug(i); Glob1(2,4)-vg(i); Glob2(1,4)-ud(i); Glob2(2,4)-vd(i); ];
+    X = pinv(A)*B;
+    Ai(i,:,:) = A;
+    Bi(i,:,:) = B;
+    Xi(i,:,:) = round(-X*1e2);
+end
 
-% Statistiques de reconstruction 3D.......
+% Points 3D reconstruits -> voir Xi
+
+% Statistiques de reconstruction 3D....... -> voir Err_cam 1 et 2
+
+% Estimation autre point
+npts_estim = 2;
+[fic_ig,path_fic_ig]=uigetfile('*.bmp', 'Image cam?ra Gauche');
+ig=imread([path_fic_ig fic_ig]);
+figure(1);
+imshow(ig);
+for i=1:npts_estim
+    [xg(i),yg(i)]=ginput(1);
+    xg(i)=round(xg(i));
+    yg(i)=round(yg(i));
+end;
+[fic_id,path_fic_id]=uigetfile('*.bmp', 'Image cam?ra Droite');
+id=imread([path_fic_id fic_id]);
+figure(2);
+imshow(id);
+for i=1:npts_estim
+    [xd(i),yd(i)]=ginput(1);
+    xd(i)=round(xd(i));
+    yd(i)=round(yd(i));
+end;
+Aestim = ones(npts_estim,4,3);
+Bestim = ones(npts_estim,4,1);
+Xestim = ones(npts_estim,3,1);
+A = ones(4,3);
+B = ones(4,1);
+X = ones(3,1);
+for i=1:npts_estim
+    A = [ Glob1(1,1)-Glob1(3,1)*xg(i), Glob1(1,2)-Glob1(3,2)*xg(i), Glob1(1,3)-Glob1(3,3)*xg(i);
+        Glob1(2,1)-Glob1(3,1)*yg(i), Glob1(2,2)-Glob1(3,2)*yg(i), Glob1(2,3)-Glob1(3,3)*yg(i);
+        Glob2(1,1)-Glob2(3,1)*xd(i), Glob2(1,2)-Glob2(3,2)*xd(i), Glob2(1,3)-Glob2(3,3)*xd(i);
+        Glob2(2,1)-Glob2(3,1)*yd(i), Glob2(2,2)-Glob2(3,2)*yd(i), Glob2(2,3)-Glob2(3,3)*yd(i); ];
+    B = [ Glob1(1,4)-xg(i); Glob1(2,4)-yg(i); Glob2(1,4)-xd(i); Glob2(2,4)-yd(i); ];
+    X = pinv(A)*B;
+    Aestim(i,:,:) = A;
+    Bestim(i,:,:) = B;
+    Xestim(i,:,:) = round(-X*1e2);
+end
+
+% Distance euclidienne
+dist_1_2 = sqrt( (Xi(1,1)-Xi(2,1))^2 + (Xi(1,2)-Xi(2,2))^2 + (Xi(1,3)-Xi(2,3))^2 );

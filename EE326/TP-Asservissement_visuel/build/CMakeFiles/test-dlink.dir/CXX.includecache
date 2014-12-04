@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/etudiant/code/tp-gmee326-assvisuel/src/camera.cpp
+opencv2/opencv.hpp
+-
+time.h
+-
+curl/curl.h
+-
+stdio.h
+-
+stdlib.h
+-
+math.h
+-
+visServoing/Definitions.h
+/home/etudiant/code/tp-gmee326-assvisuel/src/visServoing/Definitions.h
+visServoing/Castan.h
+/home/etudiant/code/tp-gmee326-assvisuel/src/visServoing/Castan.h
+visServoing/Gauss.h
+/home/etudiant/code/tp-gmee326-assvisuel/src/visServoing/Gauss.h
+
+/home/etudiant/code/tp-gmee326-assvisuel/src/visServoing/Castan.h
+
+/home/etudiant/code/tp-gmee326-assvisuel/src/visServoing/Definitions.h
+stdlib.h
+-
+
+/home/etudiant/code/tp-gmee326-assvisuel/src/visServoing/Gauss.h
+
