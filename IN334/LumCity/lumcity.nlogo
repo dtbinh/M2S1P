@@ -116,9 +116,9 @@ City-entretien
 HORIZONTAL
 
 PLOT
-10
+15
 370
-210
+215
 520
 Funds
 tick
@@ -134,9 +134,9 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot funds"
 
 SWITCH
-10
+15
 330
-113
+118
 363
 debug
 debug
@@ -154,6 +154,21 @@ Services-quantity
 4
 40
 4
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+15
+290
+205
+323
+accidents-rate
+accidents-rate
+5
+200
+5
 1
 1
 NIL
@@ -433,6 +448,16 @@ Polygon -1184463 true false 141 6 160 6 155 21 146 21
 Line -1184463 false 120 30 180 30
 Rectangle -16777216 true false 101 177 122 187
 Rectangle -16777216 true false 179 164 183 186
+
+person killer
+false
+0
+Circle -16777216 true false 110 5 80
+Polygon -16777216 true false 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Rectangle -16777216 true false 127 79 172 94
+Polygon -16777216 true false 195 90 240 150 225 180 165 105
+Polygon -16777216 true false 105 90 60 150 75 180 135 105
+Rectangle -7500403 true true 125 30 175 53
 
 person police
 false

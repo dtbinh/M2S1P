@@ -66,9 +66,11 @@ end
 
 to-report human-action
   let s self
+  
+  ;; FIREMAN ACTION
   let fireman (work != nobody and member? work fire_departments)
   
-  let f one-of fires in-radius blocksize
+  let f min-one-of fires in-radius blocksize [distance myself]
   if (f != nobody)
   [
     ifelse (fireman)
@@ -88,8 +90,33 @@ to-report human-action
     ]
   ]
   
+  ;; POLICEMAN ACTION
+  let policeman (work != nobody and member? work police_stations)
+  
+  let k min-one-of humans with [ killer = true ] in-radius blocksize [distance myself]
+  if (k != nobody and killer = false)
+  [
+    ifelse (policeman)
+    [
+      ifelse (is-colliding? k) 
+      [ 
+        report "arrest-killer"
+      ]
+      [
+        face k
+        report "move"
+      ]
+    ]
+    [
+      set-random-heading
+      report "move"
+    ]
+  ]
+  
+  ;; QUIT
   if (round(money) <= 0) [ report "quit" ]
   
+  ;; RESIDENCE SEARCH
   if (residence = nobody)
   [
     let h one-of houses with [ is-colliding? s and people-quantity < capacity ]
@@ -123,10 +150,18 @@ to-report human-action
     ]
   ]
   
-  let r one-of patches in-cone 2 180 with [ road? ]
-  if (r = nobody) [ set r one-of patches in-radius 2 with [ road? ] ]
-  ifelse (r != nobody) [ face r ] [ face min-one-of patches with [ road? ] [distance myself] ]
-  report "move"
+  ;; KILLER ACTION
+  ifelse(killer = true and one-of humans with [ is-colliding? s and self != s and work != nobody and not member? work police_stations] != nobody)
+  [ 
+    report "kill" 
+  ]
+  ;; MOVE ON ROAD
+  [
+    let r one-of patches in-cone 2 180 with [ road? ]
+    if (r = nobody) [ set r one-of patches in-radius 2 with [ road? ] ]
+    ifelse (r != nobody) [ face r ] [ face min-one-of patches with [ road? ] [distance myself] ]
+    report "move"
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

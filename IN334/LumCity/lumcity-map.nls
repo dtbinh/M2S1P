@@ -349,6 +349,7 @@ to make-human [c x y]
     set work nobody
     set residence nobody
     set money 100 + random 40
+    set killer false
     
     let r random 100
     ifelse (r < 20)

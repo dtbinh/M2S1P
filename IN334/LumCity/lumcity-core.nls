@@ -29,7 +29,7 @@ fire_departments-own [ beliefs capacity incoming-queue intentions salary worker-
 houses-own [ beliefs burning capacity incoming-queue intentions people-quantity ]
 factories-own [ beliefs burning capacity incoming-queue intentions salary worker-quantity ]
 stores-own [ beliefs burning capacity incoming-queue intentions salary worker-quantity ]
-humans-own [ beliefs blocked incoming-queue intentions money percepts prefered_density residence speed work ]
+humans-own [ beliefs blocked incoming-queue intentions killer money percepts prefered_density residence speed work ]
 
 patches-own [ area cost density lock road? ]
 
@@ -195,7 +195,8 @@ to go
     make-human 28 0 -0.25 * blocksize
   ]
   
-  if(random 1000 < 5) [ burn one-of turtles with [ member? self houses or member? self factories or member? self stores ] ]
+  if(random 1000 < accidents-rate) [ burn one-of turtles with [ member? self houses or member? self factories or member? self stores ] ]
+  if(random 1000 < accidents-rate) [ ask one-of humans with [ work != nobody and not member? work police_stations ] [ set shape "person killer" set killer true ] ]
   
   ifelse(debug) [ 
     ask humans [ set label round(money) ] 
@@ -339,6 +340,24 @@ to stop-fire
       ]
       die 
     ]
+  ]
+end
+
+to arrest-killer
+  let policeman (work != nobody and member? work police_stations)
+  if(policeman)
+  [
+    let s self
+    ask humans with [ killer = true and is-colliding? s] [ quit ]
+  ]
+end
+
+to kill
+  if(killer = true)
+  [
+    let s self
+    let h one-of humans with [ is-colliding? s and self != s]
+    if(h != nobody) [ ask h [ quit ] ]
   ]
 end
 
