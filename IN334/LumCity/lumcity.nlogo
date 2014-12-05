@@ -109,7 +109,7 @@ City-entretien
 City-entretien
 1
 100
-80
+50
 1
 1
 %
@@ -118,7 +118,7 @@ HORIZONTAL
 PLOT
 15
 370
-215
+175
 520
 Funds
 tick
@@ -131,7 +131,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot funds"
+"funds" 1.0 0 -16777216 true "" "plot funds"
 
 SWITCH
 15
@@ -153,26 +153,74 @@ Services-quantity
 Services-quantity
 4
 40
-4
+10
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
+120
+330
+230
+363
+kill-rate
+kill-rate
+0.1
+10
+0.5
+0.1
+1
+%
+HORIZONTAL
+
+SLIDER
 15
-290
+220
 205
-323
-accidents-rate
-accidents-rate
-5
-200
-5
+253
+Services-salary
+Services-salary
+10
+100
+10
 1
 1
 NIL
 HORIZONTAL
+
+SLIDER
+235
+330
+345
+363
+fire-rate
+fire-rate
+0.1
+10
+0.5
+0.1
+1
+%
+HORIZONTAL
+
+PLOT
+185
+370
+345
+520
+Humans
+tick
+quantity
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"human" 1.0 0 -16777216 true "" "plot count humans"
 
 @#$#@#$#@
 ## DESCRIPTION
@@ -277,6 +325,25 @@ Circle -1 true false 105 40 32
 Circle -1 true false 129 19 42
 Rectangle -7500403 true true 14 228 78 270
 
+factory ruin
+false
+0
+Polygon -7500403 true true 75 195 75 270 285 270 285 225 270 195 210 210 150 195
+Rectangle -16777216 true false 90 210 270 240
+Line -7500403 true 90 195 90 255
+Line -7500403 true 120 195 120 255
+Line -7500403 true 150 195 150 240
+Line -7500403 true 180 210 180 255
+Line -7500403 true 210 210 210 240
+Line -7500403 true 240 210 240 240
+Line -7500403 true 90 225 270 225
+Rectangle -7500403 true true 14 228 78 270
+Polygon -7500403 true true 15 225 90 135 105 150 30 240 15 225 15 225
+Polygon -16777216 true false 75 150 60 180 15 225
+Polygon -16777216 true false 15 240 45 255 105 255 135 270 225 255 270 270 15 270
+Polygon -16777216 true false 75 195 105 195 75 210
+Polygon -16777216 true false 75 225 75 225 60 240 30 225
+
 fire
 false
 0
@@ -358,6 +425,17 @@ Line -7500403 true 225 195 225 240
 Line -16777216 false 270 180 270 255
 Line -16777216 false 0 180 300 180
 
+house ruin
+false
+0
+Polygon -7500403 true true 90 165 90 255 210 255 210 165 180 180 150 165 135 195 105 165
+Rectangle -16777216 true false 165 195 195 255
+Rectangle -16777216 true false 105 202 135 240
+Polygon -16777216 true false 90 165 105 165 105 165 135 195
+Polygon -16777216 true false 90 165 105 210 90 225 105 255 135 240 150 255 90 255
+Polygon -16777216 true false 210 165 180 180 210 180 195 210 195 210 210 225
+Polygon -16777216 true false 150 165 135 195 150 195
+
 house two story
 false
 0
@@ -393,7 +471,7 @@ false
 0
 Rectangle -1 true false 120 90 180 180
 Polygon -13345367 true false 135 90 150 105 135 180 150 195 165 180 150 105 165 90
-Polygon -7500403 true true 120 90 105 90 60 195 90 210 116 154 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 183 153 210 210 240 195 195 90 180 90 150 165
+Polygon -8630108 true false 120 90 105 90 60 195 90 210 116 154 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 183 153 210 210 240 195 195 90 180 90 150 165
 Circle -7500403 true true 110 5 80
 Rectangle -7500403 true true 127 76 172 91
 Line -16777216 false 172 90 161 94
@@ -522,6 +600,20 @@ Polygon -7500403 true true 96 225 150 60 206 224 63 120 236 120
 Polygon -7500403 true true 120 120 195 120 180 180 180 185 113 183
 Polygon -7500403 false true 30 15 0 45 15 60 30 90 30 105 15 165 3 209 3 225 15 255 60 270 75 270 99 256 105 270 120 285 150 300 180 285 195 270 203 256 240 270 255 270 285 255 294 225 294 210 285 165 270 105 270 90 285 60 300 45 270 15 225 30 210 30 150 15 90 30 75 30
 
+store ruin
+false
+0
+Rectangle -7500403 true true 15 165 285 255
+Rectangle -16777216 true false 120 210 180 255
+Line -7500403 true 150 195 150 255
+Rectangle -16777216 true false 30 180 105 240
+Rectangle -16777216 true false 195 180 270 240
+Line -16777216 false 0 165 300 165
+Polygon -16777216 true false 0 165 45 135 120 165 165 120 255 135 300 165
+Polygon -16777216 true false 15 240 15 255 45 255 75 240 90 255 45 255
+Polygon -16777216 true false 120 180 165 180 165 180 135 195 120 195
+Polygon -16777216 true false 285 180 270 210 285 255 255 240 240 255 285 255
+
 tile stones
 false
 0
@@ -558,7 +650,7 @@ Polygon -7500403 true true 150 75 75 210 150 195 225 210
 Polygon -7500403 true true 150 7 90 157 150 142 210 157 150 7
 
 @#$#@#$#@
-NetLogo 5.0.1
+NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

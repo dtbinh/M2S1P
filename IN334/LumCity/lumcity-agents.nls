@@ -1,28 +1,34 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CITY_HALL BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report city_hall-action
-  let wl sum [capacity - worker-quantity] of factories with [ density = "low" ] + sum [capacity - worker-quantity] of stores with [ density = "low" ]
-  let wa sum [capacity - worker-quantity] of factories with [ density = "average" ] + sum [capacity - worker-quantity] of stores with [ density = "average" ]
-  let wh sum [capacity - worker-quantity] of factories with [ density = "high" ] + sum [capacity - worker-quantity] of stores with [ density = "high" ]
-  
-  let hl count humans with [ work = nobody and prefered_density = "low" ]
-  let ha count humans with [ work = nobody and prefered_density = "average" ]
-  let hh count humans with [ work = nobody and prefered_density = "high" ]
-  
-  let mw max (list wl wa wh)
-  let d false
-  if( wl = mw and wl < hl ) [ set d "low" ]
-  if( wa = mw and wa < ha ) [ set d "average" ]
-  if( wh = mw and wh < hh ) [ set d "high" ]
-  
-  if( d != false )
+  if(ticks mod 50 = 0)
   [
-    let p one-of patches with [ lock = false and density = d and (area = "industry" or area = "store") ]
-    if(p != nobody and funds > 10 * [cost] of p)
+    let wl sum [capacity - worker-quantity] of factories with [ density = "low" ] + sum [capacity - worker-quantity] of stores with [ density = "low" ]
+    let wa sum [capacity - worker-quantity] of factories with [ density = "average" ] + sum [capacity - worker-quantity] of stores with [ density = "average" ]
+    let wh sum [capacity - worker-quantity] of factories with [ density = "high" ] + sum [capacity - worker-quantity] of stores with [ density = "high" ]
+    
+    let hl count humans with [ work = nobody and prefered_density = "low" ]
+    let ha count humans with [ work = nobody and prefered_density = "average" ]
+    let hh count humans with [ work = nobody and prefered_density = "high" ]
+    
+    let mw max (list wl wa wh)
+    let d false
+    if( wl = mw and wl < hl ) [ set d "low" ]
+    if( wa = mw and wa < ha ) [ set d "average" ]
+    if( wh = mw and wh < hh ) [ set d "high" ]
+    
+    if( d != false )
     [
-      report "install-work"
+      let p one-of patches with [ lock = false and density = d and (area = "industry" or area = "store") ]
+      if(p != nobody and funds > 10 * [cost] of p)
+      [
+        report "install-work"
+      ]
     ]
   ]
+  
+  if(worker-quantity > capacity) [ report "kick" ]
+  if(worker-quantity < capacity) [ report "recruit" ] 
   
   report "idle"
 end
@@ -151,17 +157,26 @@ to-report human-action
   ]
   
   ;; KILLER ACTION
-  ifelse(killer = true and one-of humans with [ is-colliding? s and self != s and work != nobody and not member? work police_stations] != nobody)
+  if(killer = true)
   [ 
-    report "kill" 
+    let p min-one-of humans with [ work != nobody and member? work police_stations ] in-radius blocksize [distance myself]
+    ifelse( p != nobody )
+    [
+      set-heading towards p + 180
+    ]
+    [
+      if(one-of humans with [ is-colliding? s and self != s and work != nobody and not member? work police_stations] != nobody)
+      [
+        report "kill" 
+      ]
+    ]
   ]
+    
   ;; MOVE ON ROAD
-  [
-    let r one-of patches in-cone 2 180 with [ road? ]
-    if (r = nobody) [ set r one-of patches in-radius 2 with [ road? ] ]
-    ifelse (r != nobody) [ face r ] [ face min-one-of patches with [ road? ] [distance myself] ]
-    report "move"
-  ]
+  let r one-of patches in-cone 2 180 with [ road? ]
+  if (r = nobody) [ set r one-of patches in-radius 2 with [ road? ] ]
+  ifelse (r != nobody) [ face r ] [ face min-one-of patches with [ road? ] [distance myself] ]
+  report "move"
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

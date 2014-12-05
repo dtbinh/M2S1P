@@ -23,17 +23,17 @@ breed [humans human]
 breed [fires fire]
 
 ;; A correct hierarchy should have avoided such redundancy
-city_halls-own [ beliefs incoming-queue intentions ]
-police_stations-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
-fire_departments-own [ beliefs capacity incoming-queue intentions salary worker-quantity ]
-houses-own [ beliefs burning capacity incoming-queue intentions people-quantity ]
-factories-own [ beliefs burning capacity incoming-queue intentions salary worker-quantity ]
-stores-own [ beliefs burning capacity incoming-queue intentions salary worker-quantity ]
-humans-own [ beliefs blocked incoming-queue intentions killer money percepts prefered_density residence speed work ]
+city_halls-own [ beliefs capacity incoming-queue intentions labelised salary worker-quantity ]
+police_stations-own [ beliefs capacity incoming-queue intentions labelised salary worker-quantity ]
+fire_departments-own [ beliefs capacity incoming-queue intentions labelised salary worker-quantity ]
+houses-own [ beliefs burning capacity incoming-queue intentions labelised people-quantity ruin ]
+factories-own [ beliefs burning capacity incoming-queue intentions labelised ruin salary worker-quantity ]
+stores-own [ beliefs burning capacity incoming-queue intentions labelised ruin salary worker-quantity ]
+humans-own [ beliefs blocked incoming-queue intentions killer labelised money percepts prefered_density residence speed work ]
 
 patches-own [ area cost density lock road? ]
 
-globals [ blocksize builds burns funds min_taxe nb-humans ]
+globals [ blocksize builds burns funds min_taxe mouse-was-down? nb-humans ]
 
 
 to setup
@@ -45,7 +45,7 @@ to setup
   set burns []
   set funds 100
   set min_taxe 10
-  set nb-humans 36
+  set nb-humans 40
   
   ;; standard initialization
   set-default-shape city_halls "building institution"
@@ -71,6 +71,16 @@ to setup
   ask humans with [ residence = nobody ]
   [ 
     own-residence one-of houses with [ people-quantity < capacity ]
+  ]
+  
+  ask city_halls with [ worker-quantity < capacity ]
+  [
+    set i worker-quantity
+    while [ i < capacity ]
+    [
+      recruit
+      set i i + 1
+    ]
   ]
   
   ask police_stations with [ worker-quantity < capacity ]
@@ -130,7 +140,9 @@ to go
   ]
   tick
   
-  ask city_halls [ run city_hall-action ]
+  mouse-manager
+  
+  ask city_halls [ set capacity Services-quantity run city_hall-action ]
   ask police_stations [ set capacity Services-quantity run police_station-action ]
   ask fire_departments [ set capacity Services-quantity run fire_department-action ]
   ask houses with [not burning] [ run house-action ]
@@ -187,7 +199,13 @@ to go
     
     increase-funds
     decrease-funds
+    set-current-plot "Funds"
+    set-current-plot-pen "funds"
     plot funds
+    
+    set-current-plot "Humans"
+    set-current-plot-pen "human"
+    plot count humans
   ]
   
   if(ticks mod 50 = 0)
@@ -195,8 +213,12 @@ to go
     make-human 28 0 -0.25 * blocksize
   ]
   
-  if(random 1000 < accidents-rate) [ burn one-of turtles with [ member? self houses or member? self factories or member? self stores ] ]
-  if(random 1000 < accidents-rate) [ ask one-of humans with [ work != nobody and not member? work police_stations ] [ set shape "person killer" set killer true ] ]
+  if(random 1000 < 10 * fire-rate) [ burn one-of turtles with [ (member? self houses or member? self factories or member? self stores) and not ruin ] ]
+  if(random 1000 < 10 * kill-rate) 
+  [ 
+    let k one-of humans with [ work != nobody and not (member? work police_stations or member? work fire_departments) ]
+    if(k != nobody) [ ask k [ set shape "person killer" set killer true ] ]
+  ]
   
   ifelse(debug) [ 
     ask humans [ set label round(money) ] 
@@ -204,14 +226,14 @@ to go
     
     let mhc 0 ;max_house_capacity
     let mwc 0 ;max_worker_capacity
-    ask turtles with [ not (member? self humans or member? self city_halls or member? self fires) ]
+    ask turtles with [ not (member? self humans or member? self fires) ]
     [
       ifelse(member? self houses) [ set label (list people-quantity " : " capacity) set mhc mhc + capacity ] [ set label (list worker-quantity " : " capacity) set mwc mwc + capacity ]
     ]
     show (list "max_house_capacity = " mhc ", max_worker_capacity = " mwc ", worker-capacity" (sum [capacity - worker-quantity] of factories + sum [capacity - worker-quantity] of stores) ", no-work-humans" count humans with [ work = nobody ])
   ]
   [
-    ask turtles [ set label "" ]
+    ask turtles with [ not member? self fires and labelised = false ] [ set label "" ]
     ask patches [ set pcolor patch-color area density ]
     ask patches with [ road? ] [ ask patch pxcor (pycor - 1) [ set pcolor 5 ] ]
   ]
@@ -242,12 +264,23 @@ to erase [ x y ]
     if(member? self houses)
     [
       ask humans with [ residence = s ] [ set residence nobody ]
-      die
+      set capacity 0
+      set shape "house ruin"
+      set ruin true
     ]
-    if(member? self factories or member? self stores)
+    if(member? self factories)
     [
       ask humans with [ work = s ] [ set work nobody set shape "person" ]
-      die
+      set capacity 0
+      set shape "factory ruin"
+      set ruin true
+    ]
+    if(member? self stores)
+    [
+      ask humans with [ work = s ] [ set work nobody set shape "person" ]
+      set capacity 0
+      set shape "store ruin"
+      set ruin true
     ]
     if(member? self fires) [ die ]
   ]
@@ -267,10 +300,11 @@ end
 
 to recruit
   let s "person"
-  ifelse(member? self police_stations) [ set s "person police" ]
-  [ ifelse(member? self fire_departments) [ set s "person fire" ]
-    [ ifelse(member? self stores) [ set s "person service" ]
-      [ if(member? self factories) [ set s "person construction" ]]]]
+  ifelse(member? self city_halls) [ set s "person business" ]
+  [ ifelse(member? self police_stations) [ set s "person police" ]
+    [ ifelse(member? self fire_departments) [ set s "person fire" ]
+      [ ifelse(member? self stores) [ set s "person service" ]
+        [ if(member? self factories) [ set s "person construction" ]]]]]
   let d density
   let h one-of humans with [ work = nobody and (prefered_density = d or density = false) ]
   if(worker-quantity < capacity and h != nobody)
@@ -286,7 +320,7 @@ to kick
   let h one-of humans with [ work = s ]
   if(h != nobody)
   [
-    ask h [ set shape "person" set work nobody ]
+    ask h [ if(not killer) [ set shape "person" ] set work nobody ]
     set worker-quantity worker-quantity - 1
   ]
 end
@@ -513,5 +547,35 @@ to increase-funds
 end
 
 to decrease-funds
-  set funds funds - (count turtles - count humans + count patches with [ road? ] / 2 + 2 * Services-quantity) * City-entretien / 100
+  set funds funds - (count turtles - count humans + count patches with [ road? ] / 2) * City-entretien / 100
+  set funds funds - (sum [worker-quantity] of city_halls + sum [worker-quantity] of police_stations + sum [worker-quantity] of fire_departments) * Services-salary
+end
+
+to-report mouse-clicked?
+  report (mouse-was-down? = true and not mouse-down?)
+end
+
+to mouse-manager
+  let mouse-is-down? mouse-down?
+  if mouse-clicked? [
+    ask turtles with [ xcor > mouse-xcor - size / 2 and xcor < mouse-xcor + size / 2 and ycor > mouse-ycor - size / 2 and ycor < mouse-ycor + size / 2 ] [ labelise ]
+    print (list mouse-xcor mouse-ycor)
+  ]
+  set mouse-was-down? mouse-is-down?
+end
+
+to labelise
+  ifelse(labelised = true and debug = false)
+  [
+    set label ""
+    set labelised false
+  ]
+  [
+    if(member? self humans) [ set label round(money) ] 
+    if(not (member? self humans or member? self fires))
+    [
+      ifelse(member? self houses) [ set label (list people-quantity " : " capacity) ] [ set label (list worker-quantity " : " capacity) ]
+    ]
+    set labelised true
+  ]
 end

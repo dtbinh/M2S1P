@@ -94,6 +94,10 @@ to make-map
     set size 0.75 * blocksize
     set xcor 0
     set ycor 0
+    set worker-quantity 0
+    set capacity Services-quantity
+    set salary Services-salary
+    set labelised false
     lock-patches xcor ycor size
   ]
   create-police_stations 1 [
@@ -102,8 +106,9 @@ to make-map
     set xcor -1 * blocksize
     set ycor 0
     set worker-quantity 0
-    set capacity 4
-    set salary 10
+    set capacity Services-quantity
+    set salary Services-salary
+    set labelised false
     lock-patches xcor ycor size + 1
   ]
   create-fire_departments 1 [
@@ -112,8 +117,9 @@ to make-map
     set xcor blocksize
     set ycor 0
     set worker-quantity 0
-    set capacity 4
-    set salary 10
+    set capacity Services-quantity
+    set salary Services-salary
+    set labelised false
     lock-patches xcor ycor size + 1
   ]
   
@@ -258,6 +264,8 @@ to make-house [x y]
     set xcor x
     set ycor y
     set burning false
+    set labelised false
+    set ruin false
     if(density = "low") 
     [ 
       set capacity 2
@@ -276,7 +284,7 @@ to make-house [x y]
     [ 
       set capacity 6
       set shape "house colonial"
-      lock-patches x y size + 1
+      lock-patches x y 1.25 * size
     ]
   ]
 end
@@ -288,6 +296,8 @@ to make-factory [x y]
     set xcor x
     set ycor y
     set burning false
+    set labelised false
+    set ruin false
     set worker-quantity 0
     if(density = "low") 
     [ 
@@ -317,6 +327,8 @@ to make-store [x y]
     set xcor x
     set ycor y
     set burning false
+    set labelised false
+    set ruin false
     set worker-quantity 0
     if(density = "low") 
     [ 
@@ -350,6 +362,7 @@ to make-human [c x y]
     set residence nobody
     set money 100 + random 40
     set killer false
+    set labelised false
     
     let r random 100
     ifelse (r < 20)
