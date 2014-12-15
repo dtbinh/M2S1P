@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CITY_HALL BEHAVIOR ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report city_hall-action
-  if(ticks mod 50 = 0)
+  if(worker-quantity > 0 and ticks mod 50 = 0)
   [
     let wl sum [capacity - worker-quantity] of factories with [ density = "low" ] + sum [capacity - worker-quantity] of stores with [ density = "low" ]
     let wa sum [capacity - worker-quantity] of factories with [ density = "average" ] + sum [capacity - worker-quantity] of stores with [ density = "average" ]
