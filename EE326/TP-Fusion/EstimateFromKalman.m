@@ -6,24 +6,27 @@ StateKalman(1:4,1) = InitState; %try [X_m(1); Y_m(1); DX(1); DY(1)];
 CovKalman(1:4, 1:4, 1) = diag(initCov);
 %carachteristic matrices
 H = eye(4);
-deltaT=t(2)-t(1)
-F = ;
-Q = ;
-R = ;
+deltaT=t(2)-t(1);
+F = zeros(4,4);
+F(1,1) = 1; F(1,3) = deltaT; F(2,2) = 1; F(2,4) = deltaT; F(3,3) = 1; F(4,4) = 1; 
+T = zeros(4,2);
+T(1,1) = deltaT^2 / 2; T(2,2) = deltaT^2 / 2; T(3,1) = deltaT; T(4,2) = deltaT;
+Q = T * transpose(T) * sigmaAcc;
+R = diag([0.7, 0.8, 0.3, 0.2]);
 for I = 2 : (size(t, 2) - 1)
     %prediction 
     %celle de l etat est identique a la premiere question du TP lorsque on
     %ne compte pas l'acceleration
-    StateKalman(1:4, I) = ;
-    CovKalman(1:4, 1:4, I) = ;
+    StateKalman(1:4, I) = F * StateKalman(1:4, I-1); 
+    CovKalman(1:4, 1:4, I) = F * CovKalman(1:4, 1:4, I-1) * transpose(F) + Q;
     %mesure
-    Y(1:4, I) = ;
+    Y(1:4, I) = [X_m(I); Y_m(I); DX(I); DY(I)];
     %mise a jour
-    resY(1:4, I) = ;
-    S(1:4, 1:4) = ;
-    K(1:4, 1:4) = ;%attention: nul si CovKalman=0 
-    StateKalman(1:4, I) = ;
-    CovKalman(1:4, 1:4, I) = ;
+    resY(1:4, I) = Y(1:4, I) - H * StateKalman(1:4, I-1);
+    S(1:4, 1:4) = H * CovKalman(1:4, 1:4, I) * H' + R;
+    K(1:4, 1:4) = CovKalman(1:4, 1:4, I) * H' * inv(S);%attention: nul si CovKalman=0 
+    StateKalman(1:4, I) = StateKalman(1:4, I) + K(1:4, 1:4) * resY(1:4, I);
+    CovKalman(1:4, 1:4, I) = (eye(4) - K(1:4, 1:4) * H) * CovKalman(1:4, 1:4, I);
     XKal(I) = StateKalman(1, I);
     YKal(I) = StateKalman(2, I);
 end

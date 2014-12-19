@@ -1,8 +1,8 @@
 clear all ; % on efface toutes les variables deja crees
 
-Suffixe = '.bmp' ; % suffixe des images
+Suffixe = '.TIF' ; % suffixe des images
 % Nom comprenant l'endroit ou se trouvent les images et le nom de base des images
-NomDeBase = 'Ghost2/GITS' ; 
+NomDeBase = 'SequenceSansVariation/Image' ; 
 NumeroImage = 1 ; % numero de l'image courante
 
 % pour creer le nom d'une image il suffit de faire :
@@ -79,7 +79,7 @@ end
 
 oui = 1 ; % tant que oui vaudra 1 on continuera de lire les images
 
-methode = 2;
+methode = 3;
 K = 5;
 
 while(oui)
@@ -236,6 +236,7 @@ while(oui)
         line(x_courant,y_courant) ; 
         title('Image Courante') ;
 		drawnow ; % pour s'assurer que le dessin se fait immediatement
+        %saveas(gcf,strcat(sprintf('Rendu/'),NomImage),'jpg');
 	end
   	NumeroImage = NumeroImage + 1 ;	% on incremente le numero de l'image a lire
 end
