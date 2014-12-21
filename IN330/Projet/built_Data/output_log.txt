@@ -1,0 +1,86 @@
+Initialize engine version: 4.5.4f1 (e036f44c54c9)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce GT 710M (ID=0x1140)
+    Vendor:   NVIDIA
+    VRAM:     972 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Yannick\Documents\Projet\built_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-CSharp-firstpass.dll (this message is harmless)
+Loading C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-CSharp-firstpass.dll into Unity Child Domain
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-UnityScript-firstpass.dll (this message is harmless)
+Loading C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-UnityScript-firstpass.dll into Unity Child Domain
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-UnityScript.dll (this message is harmless)
+Loading C:\Users\Yannick\Documents\Projet\built_Data\Managed\Assembly-UnityScript.dll into Unity Child Domain
+- Completed reload, in  0.311 seconds
+desktop: 1366x768 60Hz; virtual: 1366x768 at 0,0
+<RI> Initializing input.
+XInput1_3.dll not found.
+<RI> Input initialized.
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
+UnloadTime: 0.614655 ms
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 14 unused Assets to reduce memory usage. Loaded Objects now: 567.
+Total: 2.661608 ms (FindLiveObjects: 0.054737 ms CreateObjectMapping: 0.023947 ms MarkObjects: 0.225791 ms  DeleteObjects: 1.170582 ms)
+
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\Boo.Lang.dll (this message is harmless)
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
+A tree couldn't be loaded because the prefab is missing.
+Please select any instance of the Terrain destroyed_city asset in a scene and make it reference only tree prefabs that exist.
+ 
+(Filename:  Line: 44)
+
+A tree couldn't be loaded because the prefab is missing.
+Please select any instance of the Terrain destroyed_city asset in a scene and make it reference only tree prefabs that exist.
+ 
+(Filename:  Line: 44)
+
+A tree couldn't be loaded because the prefab is missing.
+Please select any instance of the Terrain destroyed_city asset in a scene and make it reference only tree prefabs that exist.
+ 
+(Filename:  Line: 44)
+
+UnloadTime: 1.717957 ms
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 104 unused Assets to reduce memory usage. Loaded Objects now: 3740.
+Total: 3.467274 ms (FindLiveObjects: 0.206405 ms CreateObjectMapping: 0.045614 ms MarkObjects: 0.292503 ms  DeleteObjects: 2.183795 ms)
+
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\UnityScript.Lang.dll (this message is harmless)
+Platform assembly: C:\Users\Yannick\Documents\Projet\built_Data\Managed\System.Core.dll (this message is harmless)
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
+UnloadTime: 11.557582 ms
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 93 unused Assets to reduce memory usage. Loaded Objects now: 392.
+Total: 5.470893 ms (FindLiveObjects: 0.026798 ms CreateObjectMapping: 0.021666 ms MarkObjects: 0.176186 ms  DeleteObjects: 4.063684 ms)
+
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
+WARNING: Shader Unsupported: 'Reflective/VertexLit' - Pass '' shader state not supported
+UnloadTime: 1.862783 ms
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 24 unused Assets to reduce memory usage. Loaded Objects now: 2794.
+Total: 4.203379 ms (FindLiveObjects: 0.212107 ms CreateObjectMapping: 0.047325 ms MarkObjects: 1.780107 ms  DeleteObjects: 0.919132 ms)
+
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
+UnloadTime: 8.835534 ms
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 113 unused Assets to reduce memory usage. Loaded Objects now: 140.
+Total: 6.348402 ms (FindLiveObjects: 0.013684 ms CreateObjectMapping: 0.021666 ms MarkObjects: 0.184168 ms  DeleteObjects: 5.346593 ms)
+
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
+WARNING: Shader Unsupported: 'Reflective/VertexLit' - Pass '' shader state not supported
+UnloadTime: 0.451013 ms
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 12 unused Assets to reduce memory usage. Loaded Objects now: 2798.
+Total: 4.215353 ms (FindLiveObjects: 0.215528 ms CreateObjectMapping: 0.052456 ms MarkObjects: 2.027566 ms  DeleteObjects: 0.720139 ms)
+
+WARNING: Shader Unsupported: 'Hidden/TerrainEngine/Details/BillboardWavingDoublePass' - Pass '' shader state not supported
