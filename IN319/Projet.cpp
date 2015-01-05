@@ -1,9 +1,13 @@
 #include "CImg.h"
 #include <iostream>
+
+#define cosd(x) (cos(fmod((x),360) * M_PI / 180))
+#define sind(x) (sin(fmod((x),360) * M_PI / 180))
+
 using namespace std;
 using namespace cimg_library;
 
-CImg<unsigned short> BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int center[3]);
+void BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]);
 
 int main(int argc,char **argv)
 {
@@ -77,9 +81,9 @@ int main(int argc,char **argv)
 		/* Click Left */
 		if (disp.button()&1  && (plane!=-1))  
 		{
-			int color[3] = {50,50,50};
-			img.draw_fill(coord[0], coord[1], coord[2], color, (float)1, (float)3);
-			redraw = true;
+			cout << coord[2] << endl<<endl<<endl;
+			int sigma = 20, value = img.atXYZ(coord[0], coord[1], coord[2]);
+			BestPlane(img, value, sigma, coord);
 		}
 		
 		/* Click Right */
@@ -95,8 +99,6 @@ int main(int argc,char **argv)
 		/* Click Middle */
 		if (disp.button()&4  && (plane!=-1))  
 		{
-			int sigma = 20, value = img.atXYZ(coord[0], coord[1], coord[2]);
-			img = BestPlane(img, value, sigma, coord);
 		}
 
 		/* Wheel */
@@ -135,8 +137,128 @@ int main(int argc,char **argv)
 	return 0;
 }
 
-CImg<unsigned short> BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int center[3]) {
-	CImg<unsigned short> currentPlane(imgRef.width(), imgRef.height(), 1), bestPlane(imgRef.width(), imgRef.height(), 1);
+void BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]) {
+	int step = 90; // in degrees
+	int bestRx = 0, bestRy = 0, bestRz = 0, bestCount = 0;
+	int bestXmin = imgRef.width(), bestXmax = 0, bestYmin = imgRef.height(), bestYmax = 0, bestZmin = imgRef.depth(), bestZmax = 0;
 	
+	int tmp, count, xmin, xmax, ymin, ymax, zmin, zmax, x, y, z, x1, y1, z1, x2, y2, z2, x3, y3, z3, c, s;
+	
+	for(int rx = 0; rx < 180; rx+=step) {
+		
+		for(int ry = 0; ry < 180; ry+=step) {
+			
+			for(int rz = 0; rz < 180; rz+=step) { cout << "Rotation : " << rx << ", " << ry << ", " << rz << endl;
+				
+				count = 0; xmin = imgRef.width(); xmax = 0; ymin = imgRef.height(); ymax = 0; zmin = imgRef.depth(); zmax = 0; 
+				
+				// Traitement du plan courant
+				for(int i = 0; i < imgRef.width(); i++) {
+					for(int j = 0; j < imgRef.height(); j++) {
+						
+						// Passer dans le repère de centre "centre"
+						x = i - centre[0];
+						y = j - centre[1];
+						z = centre[2];
+						
+						// Rotation autour de l'axe X
+						c = cosd(rx); s = sind(rx);
+						x1 = x;
+						y1 = y * c - z * s;
+						z1 = y * s + z * c;
+						
+						// Rotation autour de l'axe Y
+						c = cosd(ry); s = sind(ry);
+						
+						x2 = x1 * c + z1 * s;
+						y2 = y1;
+						z2 = z1 * c - x1 * s;
+						
+						// Rotation autour de l'axe Z
+						c = cosd(rz); s = sind(rz);
+						
+						x3 = x2 * c - y2 * s;
+						y3 = x2 * s + y2 * c;
+						z3 = z2;
+						
+						// Repasser dans le repère de centre (0,0,0)
+						x = x3 + centre[0];
+						y = y3 + centre[1];
+						z = z3;
+						
+						// Mise à jour des coordonnées extrêmes du plan
+						xmin = min(xmin, x); xmax = max(xmax, x);
+						ymin = min(ymin, y); ymax = max(ymax, y);
+						zmin = min(zmin, z); zmax = max(zmax, z);
+						
+						// Test de valeur
+						tmp = imgRef.atXYZ(x, y, z);
+						if(value - sigma < tmp && tmp < value + sigma) {
+							count++;
+						}
+						
+					}
+				}
+				
+				// Mise à jour de la meilleure rotation
+				if(count > bestCount) {
+					bestCount = count;
+					bestRx = rx;
+					bestRy = ry;
+					bestRz = rz;
+					bestXmin = xmin;
+					bestXmax = xmax;
+					bestYmin = ymin;
+					bestYmax = ymax;
+					bestZmin = zmin;
+					bestZmax = zmax;
+				}
+			}
+		}
+	}
+	
+	// Création du meilleur plan
+	CImg<unsigned short> bestPlane(imgRef.width(), imgRef.height(), 1, 1);
+	
+	for(int i = 0; i < bestPlane.width(); i++) {
+		for(int j = 0; j < bestPlane.height(); j++) {
+			
+			// Passer dans le repère de centre "centre"
+			x = i - centre[0];
+			y = j - centre[1];
+			z = centre[2];
+			
+			// Rotation autour de l'axe X
+			c = cosd(bestRx); s = sind(bestRx);
+			x1 = x;
+			y1 = y * c - z * s;
+			z1 = y * s + z * c;
+			
+			// Rotation autour de l'axe Y
+			c = cosd(bestRy); s = sind(bestRy);
+			
+			x2 = x1 * c + z1 * s;
+			y2 = y1;
+			z2 = z1 * c - x1 * s;
+			
+			// Rotation autour de l'axe Z
+			c = cosd(bestRz); s = sind(bestRz);
+			
+			x3 = x2 * c - y2 * s;
+			y3 = x2 * s + y2 * c;
+			z3 = z2;
+			
+			// Repasser dans le repère de centre (0,0,0)
+			x = x3 + centre[0];
+			y = y3 + centre[1];
+			z = z3;
+			
+			// Remplissage
+			*(bestPlane.data(i,j,0)) = imgRef.atXYZ(x, y, z);
+		}
+	}
+	
+	// Display
+	bestPlane.display();
 }
 
