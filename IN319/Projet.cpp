@@ -131,7 +131,7 @@ int main(int argc,char **argv)
 			redraw=false;
 		}
 	}
-	img.save_raw("saved.raw");
+	//img.save_raw("saved.raw");
 	return 0;
 }
 

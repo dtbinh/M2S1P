@@ -136,6 +136,7 @@ int main(int argc,char **argv)
 }
 
 CImg<unsigned short> BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int center[3]) {
-	CImg<unsigned short> currentPlane(img.width(), img.height(), 1), bestPlane(img.width(), img.height(), 1);
+	CImg<unsigned short> currentPlane(imgRef.width(), imgRef.height(), 1), bestPlane(imgRef.width(), imgRef.height(), 1);
+	
 }
 
