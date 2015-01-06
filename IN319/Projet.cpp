@@ -7,7 +7,8 @@
 using namespace std;
 using namespace cimg_library;
 
-void BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]);
+CImg<unsigned short> BestPlaneT(CImg<unsigned short> imgRef, int value, int sigma); // Translation
+CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]); // Rotation
 
 int main(int argc,char **argv)
 {
@@ -83,7 +84,8 @@ int main(int argc,char **argv)
 		{
 			cout << coord[2] << endl<<endl<<endl;
 			int sigma = 20, value = img.atXYZ(coord[0], coord[1], coord[2]);
-			BestPlane(img, value, sigma, coord);
+			BestPlaneT(img, value, sigma).display();
+			//BestPlaneR(img, value, sigma, coord).display();
 		}
 		
 		/* Click Right */
@@ -137,7 +139,127 @@ int main(int argc,char **argv)
 	return 0;
 }
 
-void BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]) {
+// =======================================================================================================
+// =========================================== BestPlane =================================================
+// =======================================================================================================
+
+CImg<unsigned short> BestPlaneT(CImg<unsigned short> imgRef, int value, int sigma) {
+	int step = 1;
+	int bestTx = 0, bestTy = 0, bestTz = 0, bestCount = 0;
+	int bestWidth = 0, bestHeight = 0;
+	
+	int tmp, count, x, y, z;
+	
+	for(int tx = 0; tx < imgRef.width(); tx+=step) { //cout << "Translation X : " << tx << endl;
+		
+		count = 0;
+		
+		// Traitement du plan courant
+		for(int i = 0; i < imgRef.depth(); i++) {
+			for(int j = 0; j < imgRef.height(); j++) {
+				
+				// Test de valeur
+				tmp = imgRef.atXYZ(tx, j, i);
+				if(value - sigma < tmp && tmp < value + sigma) {
+					count++;
+				}
+				
+			}
+		}
+		
+		// Mise à jour de la meilleure translation
+		if(count > bestCount) {
+			bestCount = count;
+			bestTx = tx;
+			bestTy = 0;
+			bestTz = 0;
+			bestWidth = imgRef.depth();
+			bestHeight = imgRef.height();
+		}
+	}
+		
+	for(int ty = 0; ty < imgRef.height(); ty+=step) { //cout << "Translation Y : " << ty << endl;
+		
+		count = 0;
+		
+		// Traitement du plan courant
+		for(int i = 0; i < imgRef.width(); i++) {
+			for(int j = 0; j < imgRef.depth(); j++) {
+				
+				// Test de valeur
+				tmp = imgRef.atXYZ(i, ty, j);
+				if(value - sigma < tmp && tmp < value + sigma) {
+					count++;
+				}
+				
+			}
+		}
+		
+		// Mise à jour de la meilleure translation
+		if(count > bestCount) {
+			bestCount = count;
+			bestTx = 0;
+			bestTy = ty;
+			bestTz = 0;
+			bestWidth = imgRef.width();
+			bestHeight = imgRef.depth();
+		}
+	}
+
+	for(int tz = 0; tz < imgRef.depth(); tz+=step) { //cout << "Translation Z : " << tz << endl;
+		
+		count = 0;
+		
+		// Traitement du plan courant
+		for(int i = 0; i < imgRef.width(); i++) {
+			for(int j = 0; j < imgRef.height(); j++) {
+				
+				// Test de valeur
+				tmp = imgRef.atXYZ(i, j, tz);
+				if(value - sigma < tmp && tmp < value + sigma) {
+					count++;
+				}
+				
+			}
+		}
+		
+		// Mise à jour de la meilleure translation
+		if(count > bestCount) {
+			bestCount = count;
+			bestTx = 0;
+			bestTy = 0;
+			bestTz = tz;
+			bestWidth = imgRef.width();
+			bestHeight = imgRef.height();
+		}
+	}
+	
+	// Création du meilleur plan
+	CImg<unsigned short> bestPlane(bestWidth, bestHeight, 1, 1);
+	
+	for(int i = 0; i < bestWidth; i++) {
+		for(int j = 0; j < bestHeight; j++) {
+			
+			// Remplissage
+			if(bestTx != 0) {
+				*(bestPlane.data(i,j,0)) = imgRef.atXYZ(bestTx, j, i);
+			}
+			else if(bestTy != 0) {
+				*(bestPlane.data(i,j,0)) = imgRef.atXYZ(i, bestTy, j);
+			}
+			else if(bestTz != 0) {
+				*(bestPlane.data(i,j,0)) = imgRef.atXYZ(i, j, bestTz);
+			}
+			
+		}
+	}
+	
+	cout << endl << "Meilleure translation : " << bestTx << ", " << bestTy << ", " << bestTz << endl;
+	
+	return bestPlane;
+}
+
+CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]) {
 	int step = 90; // in degrees
 	int bestRx = 0, bestRy = 0, bestRz = 0, bestCount = 0;
 	int bestXmin = imgRef.width(), bestXmax = 0, bestYmin = imgRef.height(), bestYmax = 0, bestZmin = imgRef.depth(), bestZmax = 0;
@@ -258,7 +380,6 @@ void BestPlane(CImg<unsigned short> imgRef, int value, int sigma, unsigned int c
 		}
 	}
 	
-	// Display
-	bestPlane.display();
+	return bestPlane;
 }
 
