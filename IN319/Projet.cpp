@@ -269,7 +269,7 @@ CImg<unsigned short> BestPlaneT(CImg<unsigned short> imgRef, int value, int sigm
 
 CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigma, unsigned int centre[3]) {
 	cout << endl << "=============================================================================" << endl;
-	int step = 90; // in degrees
+	int step = 30; // in degrees
 	int bestRx = 0, bestRy = 0, bestRz = 0, bestCount = 0;
 	
 	int tmp, count;
@@ -289,8 +289,8 @@ CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigm
 					for(int j = 0; j < imgRef.height(); j++) {
 						
 						// Passer dans le repère de centre "centre"
-						x = i - centre[0];
-						y = j - centre[1];
+						x = i - (int)centre[0];
+						y = j - (int)centre[1];
 						z = centre[2];
 						
 						// Rotation autour de l'axe X
@@ -314,17 +314,17 @@ CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigm
 						z3 = z2;
 						
 						// Repasser dans le repère de centre (0,0,0)
-						x = x3 + centre[0];
-						y = y3 + centre[1];
+						x = x3 + (int)centre[0];
+						y = y3 + (int)centre[1];
 						z = z3;
 						
 						// Test de valeur
-						/*if(x < 0 || y < 0 || z < 0 || x > imgRef.width() || y > imgRef.height() || z > imgRef.depth()) {
+						if(x < 0 || y < 0 || z < 0 || x > imgRef.width() || y > imgRef.height() || z > imgRef.depth()) {
 							tmp = 0;
 						}
 						else {
-							*/tmp = imgRef.atXYZ(x, y, z);
-						//}
+							tmp = imgRef.atXYZ(x, y, z);
+						}
 						if(value - sigma < tmp && tmp < value + sigma) {
 							count++;
 						}
@@ -345,8 +345,8 @@ CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigm
 	cout << "\rRotation en cours... 100%" << endl;
 	
 	// Création du meilleur plan
-	int size = max(imgRef.width(), max(imgRef.height(), imgRef.depth()));
-	int offseti = (size-imgRef.width())/2, offsetj = (size-imgRef.height())/2;
+	int size = (int)(sqrt(2) * max(imgRef.width(), max(imgRef.height(), imgRef.depth())));
+	//int offseti = (size - imgRef.width())/2, offsetj = (size - imgRef.height())/2;
 	CImg<unsigned short> bestPlane(size, size, 1, 1);
 	
 	cout << "Meilleure Rotation : " << bestRx << ", " << bestRy << ", " << bestRz << endl;
@@ -356,9 +356,9 @@ CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigm
 		for(int j = 0; j < size; j++) {
 			
 			// Passer dans le repère de centre "centre"
-			x = i - centre[0];
-			y = j - centre[1];
-			z = centre[2];
+			x = i - (int)centre[0];
+			y = j - (int)centre[1];
+			z = (int)centre[2];
 			
 			// Rotation autour de l'axe X
 			c = cosd(bestRx); s = sind(bestRx);
@@ -381,12 +381,17 @@ CImg<unsigned short> BestPlaneR(CImg<unsigned short> imgRef, int value, int sigm
 			z3 = z2;
 			
 			// Repasser dans le repère de centre (0,0,0)
-			x = x3 + centre[0];
-			y = y3 + centre[1];
+			x = x3 + (int)centre[0];
+			y = y3 + (int)centre[1];
 			z = z3;
 			
 			// Remplissage
-			*(bestPlane.data(i + offseti, j + offsetj, 0)) = imgRef.atXYZ(x, y, z);
+			if(x < 0 || y < 0 || z < 0 || x > imgRef.width() || y > imgRef.height() || z > imgRef.depth()) {
+				*(bestPlane.data(i, j, 0)) = 0;
+			}
+			else {
+				*(bestPlane.data(i, j, 0)) = imgRef.atXYZ(x, y, z);
+			}
 		}
 	}
 	
